@@ -9,7 +9,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -17,7 +16,11 @@ import model.Account;
 
 public class TablePanel extends JPanel {
     
-    private JTable table;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5145208983668940173L;
+	private JTable table;
     private AccountTableModel tableModel;
     private JScrollPane scrollPane;
     

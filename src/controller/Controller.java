@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import gui.AccountEvent;
 //import gui.AccountEvent;
 import model.Account;
 import model.AccountListDatabase;
@@ -50,12 +51,12 @@ public class Controller {
 	    return db.getAccounts().get(id);
     }
 	
-//	public void addAccount(AccountEvent ev) {
-//		String alias = ev.getAlias();
-//		int level = ev.getLevel();
-//		Account account = new Account(alias, level);
-//		db.addAccount(account);
-//	}
+	public void addAccount(AccountEvent ev) {
+		String alias = ev.getAlias();
+		int level = ev.getLevel();
+		Account account = new Account(alias, level);
+		db.addAccount(account);
+	}
 	
 	public void saveToFile(File file) throws IOException {
 	    db.saveAccounts(file);
@@ -80,4 +81,5 @@ public class Controller {
 	public boolean checkWin() {
 	    return this.game.winGame(this.game.getCurrentPlayer());
 	}
+
 }
