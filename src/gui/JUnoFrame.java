@@ -1,8 +1,33 @@
 package gui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.Box;
+import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.LayoutStyle;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.WindowConstants;
+
+import controller.Controller;
+import model.Game;
 
 /**
  *
@@ -14,69 +39,86 @@ public class JUnoFrame extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 481508119037659069L;
-	
-	private static final ImageIcon iconApp = new ImageIcon("icons/Uno_logo_PNG2.png");
-	
-	// Variables declaration - do not modify                     
+	/////////////////////////////////////////////////////////////////
+	private PanelGradient backgroungHome;
+    private PanelGradient backgroungAccount;
+    private PanelGradient backgroungPlay;
+    /////////////////////////////////////
+	private JPanel homeMarginPanel;
     private JPanel accountMarginPanel;
     private JPanel accountPanel;
+    
+    private JLabel welcome;
+    private JPanel welcomePanel;
+    private JButton logo;
+    private JLabel cliccaLogo;
+	////////////////////////////////////
+	private Box.Filler topMargin;
+	private Box.Filler topMargin1;
+    
     private JTextField accountTextField;
     private JButton addAccountButton;
     private JButton backAccountButton;
+    
+    private JLabel createLabel;
+    private JPanel insertPanel;
+    private JPanel listPanel;
+    private JButton playButton;
+    ////////////////////////////////////
+    private JPanel pausePanel;
     private JButton pauseButton;
     private JButton backButton;
-    private PanelGradient backgroungAccount;
-    private PanelGradient backgroungHome;
-    private PanelGradient backgroungPlay;
-    private JButton blueButton;
-    private JPanel bottomCardPanel;
-    private Box.Filler bottomMargin;
-    private Box.Filler bottomMargin1;
-    private Box.Filler bottomMargin2;
-    private Box.Filler bottomMargin3;
-    private JPanel bottomPlayerPanel;
-    private JPanel chooseColorPanel;
-    private JLabel cliccaLogo;
-    private JLabel createLabel;
-    private JButton deckButton;
-    private JPanel deckPanel;
-    private JLabel discardLabel;
-    private JLabel gameVerse;
-    private JButton greenButton;
-    private JPanel homeMarginPanel;
-    private JPanel insertPanel;
-    private JLabel selectColor;
-    private Box.Filler leftMargin;
-    private Box.Filler leftMargin1;
-    private Box.Filler leftMargin2;
-    private Box.Filler leftMarginLogo;
-    private JPanel leftPlayerPanel;
-    private JPanel listPanel;
-    private JButton logo;
-    private JPanel pausePanel;
-    private JButton playButton;
     private JPanel playPan;
-    private JButton redButton;
+    private DeckPanel deckPanel;
+    private PlayerPanel topPlayerPanel;
+    private PlayerPanel rightPlayerPanel;
+    private PlayerPanel leftPlayerPanel;
+    private PlayerPanel bottomCardPanel;
+    private JPanel bottomPlayerPanel;
+    private JButton unoButton;
+    ////////////////////////////////////
     private Box.Filler rightMargin;
     private Box.Filler rightMargin1;
     private Box.Filler rightMargin2;
     private Box.Filler rightMarginLogo;
-    private JPanel rightPlayerPanel;
+    ////////////////////////////////////
+    private Box.Filler leftMargin;
+    private Box.Filler leftMargin1;
+    private Box.Filler leftMargin2;
+    private Box.Filler leftMarginLogo;
+    ////////////////////////////////////
+    private Box.Filler bottomMargin;
+    private Box.Filler bottomMargin1;
+    private Box.Filler bottomMargin2;
+    private Box.Filler bottomMargin3;
+    ////////////////////////////////////
     private JLabel selectAccountLabel;
     private JPanel selectPanel;
-    private Box.Filler topMargin;
-    private Box.Filler topMargin1;
-    private JPanel topPlayerPanel;
-    private JButton unoButton;
-    private JLabel welcome;
-    private JPanel welcomePanel;
+    ////////////////////////////////////
+    private JLabel selectColor;
+    private JPanel chooseColorPanel;
     private JButton yellowButton;
+    private JButton redButton;
+    private JButton blueButton;
+    private JButton greenButton;
+    
+    private Controller controller;
+    
+    private Timer aiPlayerGuiUpdate = new Timer(Game.getSecAiPlay(), (ae)->{
+        topPlayerPanel.updateEnemyCard(controller.getGame().getTopPlayer().getHandCards());
+        rightPlayerPanel.updateEnemyCard(controller.getGame().getRightPlayer().getHandCards());
+        leftPlayerPanel.updateEnemyCard(controller.getGame().getLeftPlayer().getHandCards());
+        deckPanel.getDiscardLabel().setIcon(controller.getDiscard().getLastDiscard().getFaceCard());
+        SwingUtilities.updateComponentTreeUI(this);
+        updateCurrentPlayer(controller);
+    });
     // End of variables declaration
     
 	/**
      * Creates new form JUnoFrame
      */
     public JUnoFrame() {
+    	controller = new Controller();
         initComponents();
     }
 
@@ -329,13 +371,11 @@ public class JUnoFrame extends JFrame {
         backButton = new JButton();
         
         playPan = new JPanel();
-        deckPanel = new JPanel();
-        deckButton = new JButton();
-        gameVerse = new JLabel();
-        discardLabel = new JLabel();
-        topPlayerPanel = new JPanel();
-        leftPlayerPanel = new JPanel();
-        rightPlayerPanel = new JPanel();
+        deckPanel = new DeckPanel(controller, controller.getDiscard().getLastDiscard(), "Deck");
+        topPlayerPanel = new PlayerPanel(controller, this, controller.getGame().getTopPlayer(), -30, 15);
+        leftPlayerPanel = new PlayerPanel(controller, this, controller.getGame().getRightPlayer(), -50, 15);
+        rightPlayerPanel = new PlayerPanel(controller, this, controller.getGame().getRightPlayer(), -50, 15);
+        bottomCardPanel = new PlayerPanel(controller, this, controller.getGame().getTopPlayer(), -30, 15);
         bottomPlayerPanel = new JPanel();
         chooseColorPanel = new JPanel();
         greenButton = new JButton();
@@ -343,7 +383,6 @@ public class JUnoFrame extends JFrame {
         redButton = new JButton();
         yellowButton = new JButton();
         selectColor = new JLabel();
-        bottomCardPanel = new JPanel();
         unoButton = new JButton();
     	
     	backgroungPlay.setLayout(new BorderLayout());
@@ -548,25 +587,6 @@ public class JUnoFrame extends JFrame {
 
         playPan.add(rightPlayerPanel, BorderLayout.LINE_END);
 
-        deckPanel.setBackground(new Color(204, 255, 255));
-        FlowLayout flowLayout1 = new FlowLayout(FlowLayout.CENTER, 30, 50);
-        flowLayout1.setAlignOnBaseline(true);
-        deckPanel.setLayout(flowLayout1);
-
-        deckButton.setIcon(new ImageIcon(getClass().getResource("/cards/RETRO.png"))); // NOI18N
-        deckButton.setContentAreaFilled(false);
-        deckButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        deckButton.setPreferredSize(new Dimension(100, 150));
-        deckPanel.add(deckButton);
-
-        gameVerse.setHorizontalAlignment(SwingConstants.CENTER);
-        gameVerse.setIcon(new ImageIcon(getClass().getResource("/icons/icons8_process_48px.png"))); // NOI18N
-        deckPanel.add(gameVerse);
-
-        discardLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        discardLabel.setIcon(new ImageIcon(getClass().getResource("/cards/BLUE_FIVE.png"))); // NOI18N
-        deckPanel.add(discardLabel);
-
         playPan.add(deckPanel, BorderLayout.CENTER);
 
         backgroungPlay.add(playPan, BorderLayout.CENTER);
@@ -612,6 +632,58 @@ public class JUnoFrame extends JFrame {
     private void yellowButtonActionPerformed(ActionEvent evt) {                                             
         // TODO add your handling code here:
     }     
+    
+    public void updateCurrentPlayer(Controller controller) {
+        aiPlayerGuiUpdate.setRepeats(false);
+	    switch (controller.getGame().getCurrentPlayer().getGameId()) {
+            case 0 -> {
+            	bottomCardPanel.setPlayerTurn();
+                rightPlayerPanel.clearTurn();
+                topPlayerPanel.clearTurn();
+                leftPlayerPanel.clearTurn();
+                }
+            case 1 -> {
+            	rightPlayerPanel.setPlayerTurn();
+            	bottomCardPanel.clearTurn();
+                topPlayerPanel.clearTurn();
+                leftPlayerPanel.clearTurn();
+                controller.getGame().AiPlay(controller.getGame().getDiscard().getLastDiscard());
+                
+                aiPlayerGuiUpdate.start();
+            }
+            case 2 -> {
+            	topPlayerPanel.setPlayerTurn();
+            	bottomCardPanel.clearTurn();
+                rightPlayerPanel.clearTurn();
+                leftPlayerPanel.clearTurn();
+                System.out.println("Last rejected: "+controller.getGame().getDiscard().getLastDiscard());
+                controller.getGame().AiPlay(controller.getGame().getDiscard().getLastDiscard());
+                
+                aiPlayerGuiUpdate.start();
+            }
+            case 3 -> {
+            	leftPlayerPanel.setPlayerTurn();
+            	bottomCardPanel.clearTurn();
+                rightPlayerPanel.clearTurn();
+                topPlayerPanel.clearTurn();
+                System.out.println("Last rejected: "+controller.getGame().getDiscard().getLastDiscard());
+                controller.getGame().AiPlay(controller.getGame().getDiscard().getLastDiscard());
+
+                aiPlayerGuiUpdate.start();
+            }
+        }
+	    topPlayerPanel.updateEnemyCard(controller.getGame().getTopPlayer().getHandCards());
+        rightPlayerPanel.updateEnemyCard(controller.getGame().getRightPlayer().getHandCards());
+        leftPlayerPanel.updateEnemyCard(controller.getGame().getLeftPlayer().getHandCards());
+        bottomCardPanel.setCards(controller.getGame().getBottomPlayer().getHandCards());
+//        deckPanel.updateLabelTurn();
+//        deckPanel.updateLabelDiscard();
+	    SwingUtilities.updateComponentTreeUI(this);
+    }
+
+    public DeckPanel getDeckPanel() {
+	    return deckPanel;
+	}
     
     private void setFrameSettings() {
     	setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
