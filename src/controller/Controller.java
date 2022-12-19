@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import gui.AccountEvent;
-//import gui.AccountEvent;
+
 import model.Account;
 import model.AccountListDatabase;
 import model.Card;
@@ -23,8 +23,16 @@ public class Controller {
         game = new Game(player);
     }
     
+    public void resetGame() {
+        this.game.clearGame();
+    }
+    
     public Game getGame() {
         return this.game;
+    }
+    
+    public boolean getGameDirection() {
+    	return this.game.getGameDirection();
     }
     
     public Deck getDeck() {
@@ -51,9 +59,7 @@ public class Controller {
 	    return db.getAccounts().get(id);
     }
 	
-	public void addAccount(AccountEvent ev) {
-		String alias = ev.getAlias();
-		int level = ev.getLevel();
+	public void addAccount(String alias, int level) {
 		Account account = new Account(alias, level);
 		db.addAccount(account);
 	}
@@ -72,6 +78,27 @@ public class Controller {
 	
 	public String getCurrentPlayerAlias() {
 	    return this.game.getCurrentPlayer().getAccountInfo().getAlias();
+	}
+	
+	public boolean plays(Card card) {
+		if (game.getCurrentPlayer().getGameId() == 0) {
+			if (game.legitDiscard(card)) {
+				play(card);
+				discard(card);
+			}
+			return true;
+		} else 
+			return false;
+	}
+	
+	public void discard(Card discard) {
+		this.game.getBottomPlayer().discard(discard);
+		this.game.getDiscard().setDiscard(discard);
+	}
+	
+	public void play(Card card) {
+		this.game.play(card);
+		this.game.nextTurn();
 	}
 	
 	public boolean getUno() {

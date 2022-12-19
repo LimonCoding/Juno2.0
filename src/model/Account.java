@@ -6,6 +6,11 @@ import javax.swing.ImageIcon;
 
 public class Account extends Object implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7593324165697695593L;
+
 	private static int count = 0;
 
 	private int id;

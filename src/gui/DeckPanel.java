@@ -1,9 +1,9 @@
 package gui;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -16,7 +16,7 @@ import javax.swing.border.Border;
 import controller.Controller;
 import model.Card;
 
-public class DeckPanel extends JPanel {
+public class DeckPanel extends JPanel implements Observer {
 	
 	/**
 	 * 
@@ -39,43 +39,36 @@ public class DeckPanel extends JPanel {
 	private JLabel turnLabel;
 	private JLabel lastDiscardLabel;
 	
-	public DeckPanel(Controller controller, Card discard, String borderTitle) {
+	public DeckPanel(Controller controller, Card discard) {
 		this.controller = controller;
-	    setNameBorder(borderTitle);
+	    setNameBorder();
 		outerBorder = BorderFactory.createEmptyBorder(20, 20, 20, 20);
 		setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
 		setOpaque(false);
 		setDeckLayout();
 
+		deckButton = new JButton();
         setDeck();
-        add(deckButton);
 
+        gameVerse = new JLabel();
         gameVerse.setHorizontalAlignment(SwingConstants.CENTER);
-        gameVerse.setIcon(new ImageIcon(getClass().getResource("/icons/icons8_process_48px.png"))); // NOI18N
-        add(gameVerse);
+        gameVerse.setIcon(new ImageIcon(getClass().getResource("/icons/counterClockwise_48px.png"))); // NOI18N
 
+        discardLabel = new JLabel();
         setDiscardButton(discard.toString());
+        
+        add(deckButton);
+        add(gameVerse);
         add(discardLabel);
-		
-
-		turnLabel = new JLabel();
-		turnLabel.setFont(new Font("Cabin Bold", 30, 30));
-		turnLabel.setForeground(Color.BLACK);
-		add(turnLabel);
-		
-		lastDiscardLabel = new JLabel();
-		lastDiscardLabel.setFont(new Font("Cabin Bold", 30, 30));
-		lastDiscardLabel.setForeground(Color.BLACK);
-        add(lastDiscardLabel);
 	}
 	
-	public void setNameBorder(String title) {
-		innerBorder = BorderFactory.createTitledBorder(title);
+	public void setNameBorder() {
+		innerBorder = BorderFactory.createEmptyBorder();
 	}
 	
 	public void setDeckLayout() {
-		deckFlowLayout = new FlowLayout(FlowLayout.CENTER, 30, 50);
+		deckFlowLayout = new FlowLayout(FlowLayout.CENTER, 20, 60);
         deckFlowLayout.setAlignOnBaseline(true);
         setLayout(deckFlowLayout);
 	}
@@ -90,6 +83,7 @@ public class DeckPanel extends JPanel {
 	
 	public void setDeck() {
 		deckButton.setIcon(controller.getDeck().getDeckFace()); // NOI18N
+		deckButton.setVisible(true);
 		deckButton.setBorder(BorderFactory.createEmptyBorder());
         deckButton.setContentAreaFilled(false);
         deckButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -116,4 +110,13 @@ public class DeckPanel extends JPanel {
     public void updateLabelDiscard() {
         this.lastDiscardLabel.setText(controller.getLastDiscard()+" it's last discard");
     }
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (controller.getGameDirection()) {
+			gameVerse.setIcon(new ImageIcon(getClass().getResource("/icons/clockwise_48px.png")));
+		} else {
+			gameVerse.setIcon(new ImageIcon(getClass().getResource("/icons/counterClockwise_48px.png")));
+		}
+	}
 }

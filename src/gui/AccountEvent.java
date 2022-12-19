@@ -19,7 +19,7 @@ public class AccountEvent extends EventObject {
 		super(source);
 	}
 	
-	public AccountEvent(Object source, String alias, int level) {
+	public AccountEvent(Object source, String alias) {
 		super(source);
 		this.alias = alias;
 		this.level = 0;

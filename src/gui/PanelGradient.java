@@ -3,10 +3,16 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class PanelGradient extends JPanel {
+	
+	public PanelGradient() {
+		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	}
 	
 	protected void paintComponent(Graphics g) {
 		

@@ -1,9 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.swing.Timer;
@@ -11,7 +8,7 @@ import javax.swing.Timer;
 import model.AiPlayer.Strategy;
 import model.Card.Value;
 
-public class Game {
+public class Game extends Observable {
     
     public enum GameDirection {
         CLOCKWISE(true), COUNTER_CLOCKWISE(false);
@@ -63,6 +60,18 @@ public class Game {
     private List<Player> sortedPlayerList;
     private List<AiPlayer> aiPlayersList;
     private GameDirection gameDirection;
+    private boolean paused = false;
+    
+    private static Flipped FLIPPED = Flipped.FLIPPED;
+	private static Flipped NOT_FLIPPED = Flipped.NOT_FLIPPED;
+    
+    public boolean getPaused() {
+    	return paused;
+    }
+    
+    public void setPaused(boolean paused) {
+    	this.paused = paused;
+    }
     
     private AiPlayer topPlayer;
     private AiPlayer rightPlayer;
@@ -73,12 +82,11 @@ public class Game {
     
     public Game(Account player) {
         bottomPlayer = new Player(player);
-        rightPlayer = new AiPlayer(new Account("Right Player"), Strategy.SAME_VALUE);
-        topPlayer = new AiPlayer(new Account("Top Player"), Strategy.SAME_COLOR);
-        leftPlayer = new AiPlayer(new Account("Left Player"), Strategy.USE_SPECIAL);
+        rightPlayer = new AiPlayer("Right Player", Strategy.SAME_VALUE);
+        topPlayer = new AiPlayer("Top Player", Strategy.SAME_COLOR);
+        leftPlayer = new AiPlayer("Left Player", Strategy.USE_SPECIAL);
         
         deck = new Deck();
-//        System.out.println(deck.toString());
         discardList = new Discarded();
         
         playersList = new ArrayList<>(Arrays.asList(bottomPlayer, topPlayer, rightPlayer, leftPlayer));
@@ -91,7 +99,6 @@ public class Game {
         lastPlayerId = playersList.size()-1;
         startGame(this);
         
-        
         System.out.println();
         for (AiPlayer a : aiPlayersList) {
             a.chooseCard(a.getValidMoves(discardList.getLastDiscard()), discardList.getLastDiscard());
@@ -100,16 +107,23 @@ public class Game {
     
     private void dealCards(List<Player> playersList) {
         for (AiPlayer p : aiPlayersList) {
-            p.setHandCards(new ArrayList<>(deck.getCards(7, Flipped.FLIPPED)));
+            p.setHandCards(new ArrayList<>(deck.getCards(7, FLIPPED)));
         }
-        bottomPlayer.setHandCards(new ArrayList<>(deck.getCards(7, Flipped.FLIPPED)));
+        bottomPlayer.setHandCards(new ArrayList<>(deck.getCards(7, FLIPPED)));
+    }
+    
+    public void clearGame() {
+        playersList.clear();
+        aiPlayersList.clear();
+        sortedPlayerList.clear();
+        Player.clearIds();
     }
     
     private void startGame(Game game) {
-        Card card = deck.getCard(Flipped.FLIPPED);
+        Card card = deck.getCard(FLIPPED);
         System.out.println(card);
         
-        if (card.isWild() || card.isSpecial()) {
+        if (card.isWild() || card.isSpecial() || card.isWildFour()) {
             System.out.println("DISCARD NOT LEGIT");
             startGame(game);
         } else {
@@ -117,7 +131,10 @@ public class Game {
             discardList.setDiscard(card);
         }
         System.out.println("Discarder from model game: "+discardList);
-        gameDirection = Game.GameDirection.CLOCKWISE;
+        gameDirection = Game.GameDirection.COUNTER_CLOCKWISE;
+        
+        setChanged();
+        notifyObservers();
     }
     
     public void refillDeck() {
@@ -129,7 +146,7 @@ public class Game {
     public boolean validCardPlay(Card card) {
         if (card.getColor().equals(discardList.getLastDiscard().getColor()) ||
              card.getValue().equals(discardList.getLastDiscard().getValue()) ||
-              card.isWild()) {
+              card.isWild() || card.isWildFour()) {
             discardList.setDiscard(card);
             return true;
         }
@@ -151,33 +168,39 @@ public class Game {
                 }
                 if (drawOrThrows.getValue().equals(Value.DRAW_TWO)) {
                     Player drawTwo = getNextPlayer();
-                    drawTwo.drawCards(deck.getCards(2, Flipped.FLIPPED));
+                    drawTwo.drawCards(deck.getCards(2, FLIPPED));
                 }
-                if (drawOrThrows.getValue().equals(Value.WILD_FOUR)) {
+                if (drawOrThrows.isWild() || drawOrThrows.isWildFour()) {
+                	drawOrThrows.setColor(p.chooseColor());
+                    System.out.println("Valid color of WILD: "+drawOrThrows.getColor());
+                }
+                if (drawOrThrows.isWildFour()) {
                     Player drawFour = getNextPlayer();
-                    drawFour.drawCards(getDeck().getCards(4, Flipped.FLIPPED));
+                    drawFour.drawCards(getDeck().getCards(4, FLIPPED));
                 }
-                discardList.setDiscard(drawOrThrows);
-                System.out.println(p.getAccountInfo().getAlias()+" Hand: "+p.getHandCards());
+                System.out.println(p.getAlias()+" Hand: "+p.getHandCards());
                 System.out.println("discarded after aiPlay: "+discardList);
-                if (drawOrThrows.isWild()) {
-                    discardList.getLastDiscard().setColor(p.chooseColor());
-                    System.out.println("Valid color of WILD: "+discardList.getLastDiscard().getColor());
-                }
+                discardList.setDiscard(drawOrThrows);
                 nextTurn();
             } else {
-                p.drawCard(deck.getCard(Flipped.FLIPPED));
-                System.out.println(p.getAccountInfo().getAlias()+" have to draw a card");
+                p.drawCard(deck.getCard(FLIPPED));
+                System.out.println(p.getAlias()+" have to draw a card");
                 nextTurn();
             }
         });
-        if (!winGame(sortedPlayerList.get(previousId()))) {
-            aiPlay.setRepeats(false);
-            aiPlay.start(); 
-            System.out.println("Previus player hand: "+sortedPlayerList.get(previousId()).getHandCards());
-        } else {
-            System.out.println("GAME OVEEEEEEEER");
-        }
+        
+        if (!paused) {
+        	if (!winGame(sortedPlayerList.get(previousId()))) {
+                aiPlay.setRepeats(false);
+                aiPlay.start(); 
+                System.out.println("Previus player hand: "+sortedPlayerList.get(previousId()).getHandCards());
+            } else {
+                System.out.println("GAME OVEEEEEEEER");
+            }
+		} else {
+			System.out.println("GIOCO IN PAUSAAAA");
+		}
+        
     }
     
     public void play(Card rejected) {
@@ -189,13 +212,13 @@ public class Game {
         }
         if (rejected.getValue().equals(Value.DRAW_TWO)) {
             Player drawTwo = getNextPlayer();
-            drawTwo.drawCards(getDeck().getCards(2, Flipped.FLIPPED));
+            drawTwo.drawCards(getDeck().getCards(2, FLIPPED));
         }
-        if (rejected.getValue().equals(Value.WILD_FOUR)) {
+        if (rejected.isWildFour()) {
             Player drawFour = getNextPlayer();
-            drawFour.drawCards(getDeck().getCards(4, Flipped.FLIPPED));
+            drawFour.drawCards(getDeck().getCards(4, FLIPPED));
         }
-        if (rejected.isWild()) {
+        if (rejected.isWild() || rejected.isWildFour()) {
             discardList.getLastDiscard().setColor(sortedPlayerList.get(0).chooseColor());
             System.out.println("Valid color of WILD: "+rejected.getColor());
         }
@@ -203,9 +226,10 @@ public class Game {
     
     public boolean legitDiscard(Card card) {
         Card lastDiscard = getDiscard().getLastDiscard();
-        return (lastDiscard.getColor().equals(card.getColor()) ||
-                lastDiscard.getValue().equals(card.getValue()) ||
-                card.isWild() || lastDiscard.isWild()) && !(bottomPlayer.getHandCards().size()==1 && card.isWild());
+        return (lastDiscard.isSameColor(card) ||
+                lastDiscard.isSameValue(card) ||
+                card.isWild() || card.isWildFour()) 
+        		&& !(bottomPlayer.getHandCards().size()==1 && (card.isWild() || card.isWildFour()) );
     }
     
     public boolean winGame(Player winner) {
@@ -213,18 +237,22 @@ public class Game {
     }
     
     public void nextTurn() {
-        if (gameDirection.getGameDirection()) {
+        if ( !(gameDirection.getGameDirection()) ) {
             int next = currentPlayerId + 1;
             currentPlayerId = (next == playersList.size()) ? 0 : next;
         } else {
             int next = currentPlayerId - 1;
             currentPlayerId = (next == -1) ? lastPlayerId : next;
         }
-        
+        setChanged();
+        notifyObservers();
     }
     
     public void reverseTurn() {
         gameDirection = GameDirection.forValue(!gameDirection.getGameDirection());
+        
+        setChanged();
+        notifyObservers();
     }
     
     public int previousId() {
@@ -233,7 +261,7 @@ public class Game {
     }
     
     public int nextId() {
-        if (gameDirection.getGameDirection()) {
+        if ( !(gameDirection.getGameDirection()) ) {
             int next = currentPlayerId + 1;
             return (next == playersList.size()) ? 0 : next;
         } else {
@@ -261,8 +289,8 @@ public class Game {
     public void setAI(List<Account> players) {
     }
     
-    public GameDirection getGameDirection() {
-        return gameDirection;
+    public boolean getGameDirection() {
+    	return gameDirection.getGameDirection();
     }
     
     public Deck getDeck() {
@@ -294,4 +322,6 @@ public class Game {
     public Discarded getDiscard() {
         return discardList;
     }
+    
+    
 }

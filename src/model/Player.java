@@ -1,23 +1,25 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import model.Card.Color;
 import model.Card.Value;
 
-public class Player {
+
+@SuppressWarnings("deprecation")
+public class Player extends Observable {
 
     private List<Card> handCards;
     private Account accountInfo;
+    private String alias;
     
     private static int count = 0;
     private int gameId;
     
     public Player(Account accountInfo, List<Card> handCards) {
         this.accountInfo = accountInfo;
+        this.alias = accountInfo.getAlias();
         this.handCards = handCards;
         
         this.gameId = count;
@@ -33,9 +35,21 @@ public class Player {
     
     public Player(Account accountInfo) {
         this.accountInfo = accountInfo;
+        this.alias = accountInfo.getAlias();
         
         this.gameId = count;
         count++;
+    }
+    
+    public Player(String alias) {
+        this.alias = alias;
+        
+        this.gameId = count;
+        count++;
+    }
+    
+    public static void clearIds() {
+    	count = 0;
     }
     
     public List<Card> getHandCards() {
@@ -72,11 +86,11 @@ public class Player {
     
     public Card.Color chooseColor() {
         List<Card> handNoWild = this.handCards.stream()
-                .filter(card -> !(card.getColor().equals(Color.WILD)))
+                .filter(card -> !(card.isWild() || card.isWildFour()))
                 .collect(Collectors.toList());
         
         int handColor;
-        System.out.println(handNoWild);
+        System.out.println("carte in mano senza wild: "+handNoWild);
         if (handNoWild.isEmpty()) {
             return Color.forValue((int)(Math.random()*(3-0+1)+0));
         } else {
@@ -127,5 +141,9 @@ public class Player {
     public String toString() {
         return "GameID: "+this.getGameId()+" "+accountInfo.toString()+" [handCards=" + handCards + "]";
     }
+
+	public String getAlias() {
+		return alias;
+	}
 
 }

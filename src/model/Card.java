@@ -54,19 +54,23 @@ public class Card {
 	
 	private Color color;
 	private final Value value;
-	private static final String subPath = "ImageLibrary/CARTE-UNO/small/";
+	private static final String subPath = "/cards/";
 	private Flipped covered;
-    private final ImageIcon backFace = new ImageIcon("ImageLibrary/CARTE-UNO/small/RETRO.png");
+	
+	private static Flipped FLIPPED = Flipped.FLIPPED;
+	private static Flipped NOT_FLIPPED = Flipped.NOT_FLIPPED;
+    
+	private final ImageIcon backFace = new ImageIcon(getClass().getResource("/cards/RETRO.png"));
 	private ImageIcon faceCard;
 	
 	public Card(Color color, final Value value) {
 		this.color = color;
 		this.value = value;
-		this.covered = Flipped.FLIPPED;
+		this.covered = FLIPPED;
 		if (covered.getFlipped()) {
 		    this.faceCard = backFace;
         } else 
-            this.faceCard = new ImageIcon(subPath+this.toString());
+            this.faceCard = new ImageIcon(getClass().getResource(subPath+this.toString()));
 	}
 	
 	public Card(Color color, final Value value, Flipped covered) {
@@ -76,7 +80,7 @@ public class Card {
         if (this.covered.getFlipped()) {
             this.faceCard = backFace;
         } else 
-            this.faceCard = new ImageIcon(subPath+this.toString());
+            this.faceCard = new ImageIcon(getClass().getResource(subPath+this.toString()));
     }
 	
 	public static Card getCard(Color color, final Value value) {
@@ -88,7 +92,9 @@ public class Card {
 	}
 	
 	public void setColor(Color color) {
+		System.out.println("-----COLORE PASSATOOOOOOOO: "+color);
         this.color = color;
+        System.out.println("-----COLORE SETTATOOOOOOOOOOOOOO: "+this.color);
     }
 
 	public Value getValue() {
@@ -100,7 +106,19 @@ public class Card {
 	}
 
     public boolean isWild() {
-        return this.getColor().equals(Color.WILD);
+        return this.getValue().equals(Value.WILD);
+    }
+    
+    public boolean isWildFour() {
+        return this.getValue().equals(Value.WILD_FOUR);
+    }
+    
+    public boolean isSameColor(Card card) {
+        return this.getColor().equals(card.getColor());
+    }
+    
+    public boolean isSameValue(Card card) {
+        return this.getValue().equals(card.getValue());
     }
     
     public boolean isSpecial() {
@@ -126,7 +144,7 @@ public class Card {
         if (flipped.getFlipped()) {
             this.faceCard = backFace;
         } else 
-            this.faceCard = new ImageIcon(subPath+this.toString());
+            this.faceCard = new ImageIcon(getClass().getResource(subPath+this.toString()));
     }
 
 }

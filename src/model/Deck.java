@@ -13,8 +13,12 @@ import model.Game.Flipped;
 
 public class Deck extends Stack<Card> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 544603031132300649L;
 	private Stack<Card> deck;
-	private final ImageIcon deckFace = new ImageIcon("ImageLibrary/CARTE-UNO/small/RETRO.png");
+	private final ImageIcon deckFace = new ImageIcon(getClass().getResource("/cards/RETRO.png"));
 	private static int numCards = 0;
 	int cards = 0;
 	
@@ -55,9 +59,9 @@ public class Deck extends Stack<Card> {
 	    Collections.shuffle(deck);
 	}
 	
-	public void replaceDeck(Stack<Card> deck) {
-	    Collections.shuffle(deck);
-	    this.deck = deck;
+	public void replaceDeck(Stack<Card> discardedDeck) {
+	    Collections.shuffle(discardedDeck);
+	    this.deck = discardedDeck;
 	}
 	
 	public Card getCard(Flipped flipped) {

@@ -37,13 +37,13 @@ public class AiPlayer extends Player {
     private Strategy aiStrategy;
     private Card reject;
     
-    public AiPlayer(Account accountInfo, Strategy aiStrategy) {
-        super(accountInfo);
+    public AiPlayer(String aiName, Strategy aiStrategy) {
+        super(aiName);
         this.aiStrategy = aiStrategy;
     }
     
     public Card play(Card rejected) {
-        System.out.println(this.getAccountInfo().getAlias()+" Hand: "+this.getHandCards());
+        System.out.println(this.getAlias()+" Hand: "+this.getHandCards());
         Card selected = chooseCard(getHandCards(), rejected);
         if (!(selected == null)) {
             System.out.println("Playable: "+selected);
@@ -73,7 +73,7 @@ public class AiPlayer extends Player {
                 .collect(Collectors.toList());
         
         Optional<Card> validCardByWild = validCards.stream()
-                .filter(card -> card.isWild())
+                .filter(card -> card.isWild() || card.isWildFour())
                 .findAny();
         Optional<Card> validCardBySpecial = validCards.stream()
                 .filter(card -> card.getValue().equals(rejected.getValue()) && rejected.isSpecial())
