@@ -92,9 +92,8 @@ public class Card {
 	}
 	
 	public void setColor(Color color) {
-		System.out.println("-----COLORE PASSATOOOOOOOO: "+color);
         this.color = color;
-        System.out.println("-----COLORE SETTATOOOOOOOOOOOOOO: "+this.color);
+        this.faceCard = new ImageIcon(getClass().getResource(subPath+this.toString()));
     }
 
 	public Value getValue() {

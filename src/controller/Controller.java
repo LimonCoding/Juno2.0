@@ -76,33 +76,35 @@ public class Controller {
         return this.game.getCurrentPlayer();
     }
 	
+	public int getCurrentPlayerId() {
+        return this.game.getCurrentPlayer().getGameId();
+    }
+	
 	public String getCurrentPlayerAlias() {
 	    return this.game.getCurrentPlayer().getAccountInfo().getAlias();
 	}
 	
-	public boolean plays(Card card) {
+	public boolean aiPlay() {
+		return this.game.aiPlay(getLastDiscard());
+	}
+	
+	public int plays(Card card) {
 		if (game.getCurrentPlayer().getGameId() == 0) {
 			if (game.legitDiscard(card)) {
-				play(card);
-				discard(card);
-			}
-			return true;
+				game.play(card);
+			} else 
+				return 0;
+			return 1;
 		} else 
-			return false;
+			return 2;
 	}
 	
-	public void discard(Card discard) {
-		this.game.getBottomPlayer().discard(discard);
-		this.game.getDiscard().setDiscard(discard);
-	}
-	
-	public void play(Card card) {
-		this.game.play(card);
-		this.game.nextTurn();
+	public void setUno() {
+	    this.game.getBottomPlayer().setUno();
 	}
 	
 	public boolean getUno() {
-	    return this.game.getCurrentPlayer().uno();
+	    return this.game.getBottomPlayer().getUno();
 	}
 	
 	public boolean checkWin() {

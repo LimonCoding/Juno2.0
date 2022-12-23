@@ -1,7 +1,6 @@
 package gui;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -20,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
@@ -140,7 +140,6 @@ public class PlayerPanel extends JPanel implements Observer {
 	
 	public void setCards(List<Card> cards) {
 	    removeAll();
-	    controller.getGame().getBottomPlayer().setHandCards(cards);
         cards.stream().forEach((card) -> {
 	        JButton carta = new JButton();
             carta.setIcon(card.getFaceCard());
@@ -151,18 +150,21 @@ public class PlayerPanel extends JPanel implements Observer {
             carta.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                	if ( !(controller.plays(card)) ) {
-//                		System.out.println(controller.getGame().getCurrentPlayer());
-                        JOptionPane.showMessageDialog(frame, 
-                            "Wait your turn!", 
-                            "Not your turn!", JOptionPane.ERROR_MESSAGE);
-					} else if ( !(controller.getGame().legitDiscard(card)) ) {
-//                		System.out.println(controller.getGame().getCurrentPlayer());
-                        JOptionPane.showMessageDialog(frame, 
-                            "Wait your turn!", 
-                            "Not your turn!", JOptionPane.ERROR_MESSAGE);
-					} else {
-						frame.updateCurrentPlayer(controller);
+                	switch (controller.plays(card)) {
+                	case 0:
+    					JOptionPane.showMessageDialog(frame, 
+                                "IL COLORE O IL VALORE DELLA CARTA SELEZIONATA NON E' VALIDO", 
+                                "CARTA NON VALIDA", JOptionPane.ERROR_MESSAGE);
+    					break;
+					case 1:
+						frame.update(player, cards);
+						break;
+						
+					case 2:
+						JOptionPane.showMessageDialog(frame, 
+	                            "Wait your turn!", 
+	                            "Not your turn!", JOptionPane.ERROR_MESSAGE);
+						break;
 					}
                 	
 //                    if (controller.getGame().getCurrentPlayer().equals(player)) {
@@ -205,27 +207,28 @@ public class PlayerPanel extends JPanel implements Observer {
             @Override
             public void actionPerformed(ActionEvent e) {
             	Card c = (Card) e.getSource();
-                if (controller.getGame().legitDiscard(card)) {
-                    controller.discard(card);
-                    controller.play(card);
-                    frame.getDeckPanel().getDiscardLabel().setVisible(true);
-                    frame.getDeckPanel().getDiscardLabel().setIcon(carta.getIcon());
-                    frame.updateCurrentPlayer(controller);
-                    JButton buttonThatWasClicked = (JButton)e.getSource();
-                    Container parent = buttonThatWasClicked.getParent();
-                    parent.remove(buttonThatWasClicked);
-                    parent.revalidate();
-                    parent.repaint();
-                } else {
-                    JOptionPane.showMessageDialog(frame, 
-                            "This card is not legit to throw.", 
-                            "Unlegit discard!", JOptionPane.ERROR_MESSAGE);
-                }
+            	switch (controller.plays(c)) {
+				case 0:
+					JOptionPane.showMessageDialog(frame, 
+                            "IL COLORE O IL VALORE DELLA CARTA SELEZIONATA NON E' VALIDO", 
+                            "CARTA NON VALIDA", JOptionPane.ERROR_MESSAGE);
+					break;
+				case 1:
+					frame.update(player, null);
+					break;
+					
+				case 2:
+					JOptionPane.showMessageDialog(frame, 
+                            "Wait your turn!", 
+                            "Not your turn!", JOptionPane.ERROR_MESSAGE);
+					break;
+				}
     		}
         });
 	}
 	
 	public void setEnemyCard(List<Card> cards) {
+		removeAll();
 	    cards.stream().forEach((card) -> {
 	    	JLabel carta = new JLabel();
             carta.setIcon(card.getFaceCard());
@@ -270,7 +273,17 @@ public class PlayerPanel extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable obs, Object obj) {
-		System.out.println(player.getAlias()+" UPDATEE DA OBSERVEERRRRRRRRR "+player.getHandCards());
+		removeAll();
+		if (player.getGameId() != 0) {
+			this.setEnemyCard(player.getHandCards());
+		} else {
+			this.setCards(player.getHandCards());
+		}
+		if (controller.getCurrentPlayer().equals(this.player)) {
+			setPlayerTurn();
+		} else {
+			clearTurn();
+		}
+		SwingUtilities.updateComponentTreeUI(this);
 	}
-    
 }

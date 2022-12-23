@@ -53,8 +53,11 @@ public class DeckPanel extends JPanel implements Observer {
 
         gameVerse = new JLabel();
         gameVerse.setHorizontalAlignment(SwingConstants.CENTER);
-        gameVerse.setIcon(new ImageIcon(getClass().getResource("/icons/counterClockwise_48px.png"))); // NOI18N
-
+        if (controller.getGameDirection()) {
+			gameVerse.setIcon(new ImageIcon(getClass().getResource("/icons/clockwise_48px.png")));
+		} else {
+			gameVerse.setIcon(new ImageIcon(getClass().getResource("/icons/counterClockwise_48px.png")));
+		}
         discardLabel = new JLabel();
         setDiscardButton(discard.toString());
         
@@ -118,5 +121,6 @@ public class DeckPanel extends JPanel implements Observer {
 		} else {
 			gameVerse.setIcon(new ImageIcon(getClass().getResource("/icons/counterClockwise_48px.png")));
 		}
+		discardLabel.setIcon(controller.getLastDiscard().getFaceCard());
 	}
 }

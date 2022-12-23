@@ -70,11 +70,8 @@ public class JUnoFrame extends JFrame implements Observer {
     private Controller controller;
     
     private Timer aiPlayerGuiUpdate = new Timer(Game.getSecAiPlay(), (ae)->{
-        topCardPanel.updateEnemyCard(controller.getGame().getTopPlayer().getHandCards());
-        rightPlayerPanel.updateEnemyCard(controller.getGame().getRightPlayer().getHandCards());
-        leftPlayerPanel.updateEnemyCard(controller.getGame().getLeftPlayer().getHandCards());
+        update(bottomCardPanel.getPlayer(), null);
         SwingUtilities.updateComponentTreeUI(this);
-        updateCurrentPlayer(controller);
     });
     
 	// End of variables declaration
@@ -119,7 +116,8 @@ public class JUnoFrame extends JFrame implements Observer {
         setLocationRelativeTo(null);
     }                      
 
-    private void createGameCard(int id) {
+    @SuppressWarnings("deprecation")
+	private void createGameCard(int id) {
     	backgroungPlay = new PanelGradient();
     	
         pausePanel = new JPanel();
@@ -142,6 +140,24 @@ public class JUnoFrame extends JFrame implements Observer {
         controller.getGame().addObserver(bottomCardPanel);
         controller.getGame().addObserver(deckPanel);
         
+        for (PlayerPanel playerPanel : playerList) {
+        	if (playerPanel.getPlayer().getGameId() != 0) {
+        		playerPanel.setEnemyCard(playerPanel.getPlayer().getHandCards());
+    		} else {
+    			playerPanel.setCards(playerPanel.getPlayer().getHandCards());
+    		}
+		}
+        
+      for (PlayerPanel player : playerList) {
+  		player.clearTurn();
+		}
+	    switch (controller.getCurrentPlayerId()) {
+          case 0 -> bottomCardPanel.setPlayerTurn();
+          case 1 -> rightPlayerPanel.setPlayerTurn();
+          case 2 -> topCardPanel.setPlayerTurn();
+          case 3 -> leftPlayerPanel.setPlayerTurn();
+      }
+        
         playPan = new JPanel();
         topPlayerPanel = new JPanel();
         bottomPlayerPanel = new JPanel();
@@ -150,7 +166,7 @@ public class JUnoFrame extends JFrame implements Observer {
     	
     	backgroungPlay.setLayout(new BorderLayout());
     	
-    	updateCurrentPlayer(controller);
+    	update(bottomCardPanel.getPlayer(), null);
 
     	Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
         Dimension prefSize = new Dimension(1280, 48);
@@ -201,13 +217,10 @@ public class JUnoFrame extends JFrame implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Current player id: "+controller.getGame().getCurrentPlayer().getGameId());
-				System.out.println("Bottom player id: "+controller.getGame().getBottomPlayer().getGameId());
-				System.out.println("Current Player: "+controller.getGame().getCurrentPlayer());
-				System.out.println("Bottom Player: "+bottomCardPanel.getPlayer());
-			    if (controller.getGame().getCurrentPlayer().equals(bottomCardPanel.getPlayer())) {
+			    if ( controller.getCurrentPlayerId() == 0 ) {
 			    	bottomCardPanel.drawCard(controller.getDeck().getCard(Flipped.FLIPPED));
 	                controller.getGame().nextTurn();
-	                updateCurrentPlayer(controller);
+	                update(bottomCardPanel.getPlayer(), null);
 	                setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(frame, 
@@ -277,10 +290,9 @@ public class JUnoFrame extends JFrame implements Observer {
             new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                		
                 		controller.getGame().setPaused(!controller.getGame().getPaused());
                         ImageIcon pauseImage = new ImageIcon(getClass().getResource("/icons/pauseButton_48px.png"));
-                        ImageIcon resumeImage = new ImageIcon(getClass().getResource("/icons/playButton48px.png"));
+                        ImageIcon resumeImage = new ImageIcon(getClass().getResource("/icons/playButton_48px.png"));
                         pauseButton.setIcon(controller.getGame().getPaused()?resumeImage:pauseImage);
                     synchronized(lock) {
                         lock.notifyAll();
@@ -294,34 +306,31 @@ public class JUnoFrame extends JFrame implements Observer {
     
     @Override
 	public void update(Observable o, Object arg) {
-    	System.out.println("Notifica da Player"+o.getClass());
-	}
-    
-    public void updateCurrentPlayer(Controller controller) {
-        aiPlayerGuiUpdate.setRepeats(false);
-        deckPanel.getDiscardLabel().setIcon(controller.getLastDiscard().getFaceCard());
-        System.out.println("ICONA SETTATA NELLE SCARTATE  -> "+controller.getDiscard().getLastDiscard().getFaceCard());
-        System.out.println("Last rejected: "+controller.getGame().getDiscard().getLastDiscard());
-        for (PlayerPanel player : playerList) {
-    		player.clearTurn();
-		}
-        int currentPlayerId = controller.getGame().getCurrentPlayer().getGameId();
-	    switch (currentPlayerId) {
-            case 0 -> bottomCardPanel.setPlayerTurn();
-            case 1 -> rightPlayerPanel.setPlayerTurn();
-            case 2 -> topCardPanel.setPlayerTurn();
-            case 3 -> leftPlayerPanel.setPlayerTurn();
-        }
+    	deckPanel.getDiscardLabel().setIcon(controller.getLastDiscard().getFaceCard());
+    	aiPlayerGuiUpdate.setRepeats(false);
+        int currentPlayerId = controller.getCurrentPlayerId();
+//        for (PlayerPanel player : playerList) {
+//    		player.clearTurn();
+//		}
+//	    switch (currentPlayerId) {
+//            case 0 -> bottomCardPanel.setPlayerTurn();
+//            case 1 -> rightPlayerPanel.setPlayerTurn();
+//            case 2 -> topCardPanel.setPlayerTurn();
+//            case 3 -> leftPlayerPanel.setPlayerTurn();
+//        }
 	    if (currentPlayerId != 0) {
-	    	controller.getGame().AiPlay(controller.getGame().getDiscard().getLastDiscard());
-	    	aiPlayerGuiUpdate.start();
+	    	boolean gameOver = controller.aiPlay();
+	    	if (gameOver) {
+	    		JOptionPane.showMessageDialog(this, 
+	    				controller.getGame().getPreviousPlayer().getAlias()+" win the game", 
+	    				"GAME OVER", JOptionPane.ERROR_MESSAGE);
+	    		controller.getGame().winGame(controller.getGame().getPreviousPlayer());
+			} else {
+				aiPlayerGuiUpdate.start();
+			}
 		}
-	    topCardPanel.updateEnemyCard(controller.getGame().getTopPlayer().getHandCards());
-        rightPlayerPanel.updateEnemyCard(controller.getGame().getRightPlayer().getHandCards());
-        leftPlayerPanel.updateEnemyCard(controller.getGame().getLeftPlayer().getHandCards());
-        bottomCardPanel.setCards(controller.getGame().getBottomPlayer().getHandCards());
 	    SwingUtilities.updateComponentTreeUI(this);
-    }
+	}
     
 	private void setUnoButton() {
 		unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButton_200px.png"))); // NOI18N
@@ -329,10 +338,11 @@ public class JUnoFrame extends JFrame implements Observer {
         unoButton.setContentAreaFilled(false);
         unoButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         unoButton.setFocusPainted(false);
-        unoButton.setPressedIcon(new ImageIcon(getClass().getResource("/icons/unoButtonClicked_200px.png"))); // NOI18N
 	}
-
 	
+	private void unoActionPerformed(ActionEvent evt) {                                     
+		unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButtonClicked_200px.png"))); // NOI18N
+    }  
 
 	private void logoActionPerformed(ActionEvent evt) {                                     
 		homeCard.getBackground().setVisible(false);
@@ -352,6 +362,7 @@ public class JUnoFrame extends JFrame implements Observer {
                 controller.createGame(controller.getAccount(id));
                 System.out.println("Get Account id: "+controller.getAccount(id));
                 createGameCard(id);
+                
                 accountCard.getBackground().setVisible(false);
                 backgroungPlay.setVisible(true);
             } else {

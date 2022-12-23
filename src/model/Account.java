@@ -15,8 +15,11 @@ public class Account extends Object implements Serializable {
 
 	private int id;
 	private String alias;
-	private int level = 0;
+	private int gamesPlayed;
+	private int gamesWon;
+	private double level;
 	private ImageIcon accountIcon;
+	
 	
 	public Account(String alias) {
         this.alias = alias;
@@ -25,7 +28,7 @@ public class Account extends Object implements Serializable {
         count++;
     }
 
-    public Account(String alias, int level) {
+    public Account(String alias, double level) {
 		this.alias = alias;
 		this.level = level;
 		if (AccountListDatabase.getAccountsSaved()!=null) {
@@ -36,7 +39,7 @@ public class Account extends Object implements Serializable {
         }
 	}
 	
-	public Account(String alias, int level, ImageIcon accountIcon) {
+	public Account(String alias, double level, ImageIcon accountIcon) {
 		this.alias = alias;
 		this.level = level;
 		this.accountIcon = accountIcon;
@@ -52,10 +55,10 @@ public class Account extends Object implements Serializable {
 		this.alias = alias;
 	}
 	
-	public int getLevel() {
+	public double getLevel() {
 		return level;
 	}
-	public void setLevel(int level) {
+	public void setLevel(double level) {
 		this.level = level;
 	}
 	
@@ -77,4 +80,30 @@ public class Account extends Object implements Serializable {
     public String toString() {
         return "Account [id=" + id + ", alias=" + alias + ", level=" + level + ", accountIcon=" + accountIcon + "]";
     }
+
+	public int getGamesWon() {
+		return gamesWon;
+	}
+
+	public void setGamesWon(int gamesWon) {
+		this.gamesWon = gamesWon;
+	}
+	
+	public void addGamesWon() {
+		gamesWon = gamesWon + 1;
+		level += 1.00;
+	}
+
+	public int getGamesPlayed() {
+		return gamesPlayed;
+	}
+
+	public void setGamesPlayed(int gamesPlayed) {
+		this.gamesPlayed = gamesPlayed;
+	}
+	
+	public void addGamesPlayed() {
+		gamesPlayed = gamesPlayed + 1;
+		level += 0.50;
+	}
 }

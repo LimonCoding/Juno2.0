@@ -13,6 +13,7 @@ public class Player extends Observable {
     private List<Card> handCards;
     private Account accountInfo;
     private String alias;
+    private boolean unoSafe = false;
     
     private static int count = 0;
     private int gameId;
@@ -58,6 +59,9 @@ public class Player extends Observable {
 
     public void setHandCards(List<Card> handCards) {
         this.handCards = handCards;
+        
+        setChanged();
+        notifyObservers();
     }
     
     public void drawCard(Card handCard) {
@@ -118,11 +122,15 @@ public class Player extends Observable {
         handCards.remove(card);
     }
     
-    public boolean uno() {
+    public boolean getUno() {
         if (this.getHandCards().size() == 1) {
             return true;
         }
         return false;
+    }
+    
+    public boolean setUno() {
+    	return unoSafe ^= unoSafe;
     }
 
     public Account getAccountInfo() {
@@ -139,7 +147,7 @@ public class Player extends Observable {
     
     @Override
     public String toString() {
-        return "GameID: "+this.getGameId()+" "+accountInfo.toString()+" [handCards=" + handCards + "]";
+        return "GameID: "+this.getGameId()+" "+this.getAlias()+" [handCards=" + handCards + "]";
     }
 
 	public String getAlias() {

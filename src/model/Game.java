@@ -107,9 +107,12 @@ public class Game extends Observable {
     
     private void dealCards(List<Player> playersList) {
         for (AiPlayer p : aiPlayersList) {
-            p.setHandCards(new ArrayList<>(deck.getCards(7, FLIPPED)));
+            p.setHandCards(new ArrayList<>(deck.getCards(1, FLIPPED)));
         }
         bottomPlayer.setHandCards(new ArrayList<>(deck.getCards(7, FLIPPED)));
+        
+        setChanged();
+    	notifyObservers();
     }
     
     public void clearGame() {
@@ -131,10 +134,10 @@ public class Game extends Observable {
             discardList.setDiscard(card);
         }
         System.out.println("Discarder from model game: "+discardList);
-        gameDirection = Game.GameDirection.COUNTER_CLOCKWISE;
+        gameDirection = Game.GameDirection.CLOCKWISE;
         
         setChanged();
-        notifyObservers();
+    	notifyObservers();
     }
     
     public void refillDeck() {
@@ -144,16 +147,18 @@ public class Game extends Observable {
     }
     
     public boolean validCardPlay(Card card) {
-        if (card.getColor().equals(discardList.getLastDiscard().getColor()) ||
+        if ( (card.getColor().equals(discardList.getLastDiscard().getColor()) ||
              card.getValue().equals(discardList.getLastDiscard().getValue()) ||
-              card.isWild() || card.isWildFour()) {
+              card.isWild() || card.isWildFour() ) && (!winGame(sortedPlayerList.get(previousId())) ) ) {
             discardList.setDiscard(card);
+            setChanged();
+        	notifyObservers();
             return true;
         }
         return false;
     }
     
-    public void AiPlay(Card rejected) {
+    public boolean aiPlay(Card rejected) {
         AiPlayer p = (AiPlayer) sortedPlayerList.get(currentPlayerId);
         System.out.println("------------------------------------");
         Timer aiPlay = new Timer(SEC_AI_PLAY, (ae)->{
@@ -193,14 +198,16 @@ public class Game extends Observable {
         	if (!winGame(sortedPlayerList.get(previousId()))) {
                 aiPlay.setRepeats(false);
                 aiPlay.start(); 
-                System.out.println("Previus player hand: "+sortedPlayerList.get(previousId()).getHandCards());
+                System.out.println("PREVIOUS ID IS THAT NOT WINNER: "+sortedPlayerList.get(previousId()));
+                System.out.println("previus didn't win? "+!winGame(sortedPlayerList.get(previousId())));
             } else {
                 System.out.println("GAME OVEEEEEEEER");
+                return true;
             }
 		} else {
 			System.out.println("GIOCO IN PAUSAAAA");
 		}
-        
+        return false;        
     }
     
     public void play(Card rejected) {
@@ -219,9 +226,25 @@ public class Game extends Observable {
             drawFour.drawCards(getDeck().getCards(4, FLIPPED));
         }
         if (rejected.isWild() || rejected.isWildFour()) {
-            discardList.getLastDiscard().setColor(sortedPlayerList.get(0).chooseColor());
+        	rejected.setColor(getBottomPlayer().chooseColor());
             System.out.println("Valid color of WILD: "+rejected.getColor());
         }
+        
+        playersList.get(0).discard(rejected);
+        discardList.setDiscard(rejected);
+        
+        Timer unoCheck = new Timer(SEC_AI_PLAY, (ae)->{
+            if (checkUno()) {
+				
+			}
+        });
+        
+        unoCheck.setRepeats(false);
+        unoCheck.start(); 
+        nextTurn();
+        
+        setChanged();
+    	notifyObservers();
     }
     
     public boolean legitDiscard(Card card) {
@@ -232,8 +255,25 @@ public class Game extends Observable {
         		&& !(bottomPlayer.getHandCards().size()==1 && (card.isWild() || card.isWildFour()) );
     }
     
+    public boolean checkUno() {
+    	if ( getBottomPlayer().getUno() ) {
+			return true;
+		} else {
+			return false;
+		}
+    }
+    
     public boolean winGame(Player winner) {
-        return sortedPlayerList.get(winner.getGameId()).getHandCards().isEmpty();
+    	int winnerGameId = winner.getGameId();
+    	
+        return sortedPlayerList.get(winnerGameId).getHandCards().isEmpty();
+    }
+    
+    public void iWon(int winnerId) {
+    	if (sortedPlayerList.get(winnerId).getHandCards().isEmpty() && winnerId==0) {
+    		getBottomPlayer().getAccountInfo().addGamesWon();
+		}
+    	getBottomPlayer().getAccountInfo().addGamesPlayed();
     }
     
     public void nextTurn() {
@@ -256,8 +296,13 @@ public class Game extends Observable {
     }
     
     public int previousId() {
-        int previous = currentPlayerId - 1;
-        return (previous == -1) ? lastPlayerId : previous;
+    	if ( !(gameDirection.getGameDirection()) ) {
+    		int previous = currentPlayerId - 1;
+            return (previous < 0) ? lastPlayerId : previous;
+        } else {
+            int previous = currentPlayerId + 1;
+            return (previous > playersList.size()-1) ? 0 : previous;
+        }
     }
     
     public int nextId() {
