@@ -70,7 +70,7 @@ public class JUnoFrame extends JFrame implements Observer {
     private Controller controller;
     
     private Timer aiPlayerGuiUpdate = new Timer(Game.getSecAiPlay(), (ae)->{
-        update(bottomCardPanel.getPlayer(), null);
+        update(null, null);
         SwingUtilities.updateComponentTreeUI(this);
     });
     
@@ -260,31 +260,6 @@ public class JUnoFrame extends JFrame implements Observer {
         getContentPane().add(backgroungPlay, "card3");
     }
     
-    private Thread counter = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            while(true) {
-            	work();
-            }
-        }
-    });
-    
-    private void work() {
-    	allowPause();
-    }
-    
-    private void allowPause() {
-        synchronized(lock) {
-            while(controller.getGame().getPaused()) {
-                try {
-                    lock.wait();
-                } catch(InterruptedException e) {
-                    // nothing
-                }
-            }
-        }
-    }
-    
     private Object lock = new Object();
     private java.awt.event.ActionListener pauseResume =
             new java.awt.event.ActionListener() {
@@ -308,27 +283,64 @@ public class JUnoFrame extends JFrame implements Observer {
 	public void update(Observable o, Object arg) {
     	deckPanel.getDiscardLabel().setIcon(controller.getLastDiscard().getFaceCard());
     	aiPlayerGuiUpdate.setRepeats(false);
+    	System.out.println("DI CHI E' IL TURNOOOOOOO???"+controller.getCurrentPlayerAlias());
         int currentPlayerId = controller.getCurrentPlayerId();
-//        for (PlayerPanel player : playerList) {
-//    		player.clearTurn();
-//		}
-//	    switch (currentPlayerId) {
-//            case 0 -> bottomCardPanel.setPlayerTurn();
-//            case 1 -> rightPlayerPanel.setPlayerTurn();
-//            case 2 -> topCardPanel.setPlayerTurn();
-//            case 3 -> leftPlayerPanel.setPlayerTurn();
-//        }
 	    if (currentPlayerId != 0) {
 	    	boolean gameOver = controller.aiPlay();
 	    	if (gameOver) {
-	    		JOptionPane.showMessageDialog(this, 
-	    				controller.getGame().getPreviousPlayer().getAlias()+" win the game", 
-	    				"GAME OVER", JOptionPane.ERROR_MESSAGE);
 	    		controller.getGame().winGame(controller.getGame().getPreviousPlayer());
+	    		boolean winOrLoose = false;
+	    		if (controller.getGame().getPreviousPlayer().getGameId() == 0) {
+	    			winOrLoose = true;
+				} 
+	    		WinMessage gameOv = new WinMessage(winOrLoose);
+	    		gameOv.setVisible(true);
+	    		gameOv.getHomeButton().addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						controller.iWon();
+						try {
+		                    controller.saveToFile(new File("saves/saves.txt"));
+		                } catch (IOException e1) {
+		                    e1.printStackTrace();
+		                }
+						homeAccountButtonActionPerformed(e);
+						gameOv.dispose();
+					}
+				});
 			} else {
 				aiPlayerGuiUpdate.start();
 			}
+		} else {
+			if ( controller.checkLoose() ) {
+	        	boolean winOrLoose = false;
+				if (controller.getGame().getPreviousPlayer().getGameId() == 0) {
+	    			winOrLoose = true;
+				} 
+				WinMessage gameOv = new WinMessage(winOrLoose);
+				gameOv.setVisible(true);
+	    		gameOv.getHomeButton().addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						controller.iWon();
+						try {
+		                    controller.saveToFile(new File("saves/saves.txt"));
+		                } catch (IOException e1) {
+		                    e1.printStackTrace();
+		                }
+						homeAccountButtonActionPerformed(e);
+						gameOv.dispose();
+					}
+				});
+			}
 		}
+	    unoButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				unoButtonActionPerformed(e);
+			}
+		});
+	    checkUno();
 	    SwingUtilities.updateComponentTreeUI(this);
 	}
     
@@ -340,10 +352,20 @@ public class JUnoFrame extends JFrame implements Observer {
         unoButton.setFocusPainted(false);
 	}
 	
-	private void unoActionPerformed(ActionEvent evt) {                                     
-		unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButtonClicked_200px.png"))); // NOI18N
-    }  
-
+	private void checkUno() {
+		if ( !(controller.getUno()) ) {
+			unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButton_200px.png"))); // NOI18N
+		}
+	}
+	
+	private void unoButtonActionPerformed(ActionEvent evt) {  
+		controller.setUnoSafe(false);
+		if ( (controller.checkUno()) ) {
+			unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButtonClicked_200px.png"))); // NOI18N
+			controller.setUnoSafe(true);
+		} 
+	} 
+	
 	private void logoActionPerformed(ActionEvent evt) {                                     
 		homeCard.getBackground().setVisible(false);
 		accountCard.getBackground().setVisible(true);
@@ -354,13 +376,18 @@ public class JUnoFrame extends JFrame implements Observer {
         homeCard.getBackground().setVisible(true);
     }       
     
+    public void homeAccountButtonActionPerformed(ActionEvent evt) { 
+    	backgroungPlay.setVisible(false);        
+    	controller.resetGame();
+        accountCard.getBackground().setVisible(true);
+    } 
+    
     private void playButtonActionPerformed(ActionEvent evt) {  
     	if (!controller.getAccounts().isEmpty()) {
             JTable table = accountCard.getTablePanel().getTable();
             if (table.getSelectedRow() != -1) {
                 Integer id = (Integer) table.getValueAt(table.getSelectedRow(), 0);
                 controller.createGame(controller.getAccount(id));
-                System.out.println("Get Account id: "+controller.getAccount(id));
                 createGameCard(id);
                 
                 accountCard.getBackground().setVisible(false);
@@ -388,141 +415,6 @@ public class JUnoFrame extends JFrame implements Observer {
                 backgroungPlay.setVisible(false);
             }
     }
-    
-    private void pauseGameButtonActionPermormed(ActionEvent evt) {
-    	JOptionPane.showMessageDialog(this, 
-                "PAUSA", 
-                "PAUSA", JOptionPane.DEFAULT_OPTION);
-    	try {
-			long eventMask = 10000*10;
-			Thread.sleep(eventMask);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-    	
-    }
-
-    private void greenButtonActionPerformed(ActionEvent evt) {                                            
-        // TODO add your handling code here:
-    }                                           
-
-    private void redButtonActionPerformed(ActionEvent evt) {                                          
-        // TODO add your handling code here:
-    }                                         
-
-    private void yellowButtonActionPerformed(ActionEvent evt) {                                             
-        // TODO add your handling code here:
-    }     
-    
-    private void setChooseColorPanel() {
-		greenButton = new JButton();
-        blueButton = new JButton();
-        redButton = new JButton();
-        yellowButton = new JButton();
-        selectColor = new JLabel();
-        
-		chooseColorPanel.setMaximumSize(new Dimension(200, 200));
-        chooseColorPanel.setMinimumSize(new Dimension(200, 200));
-        chooseColorPanel.setOpaque(false);
-
-        greenButton.setForeground(new Color(0, 204, 0));
-        greenButton.setIcon(new ImageIcon(getClass().getResource("/icons/greenSquare_48px.png"))); // NOI18N
-        greenButton.setBorderPainted(false);
-        greenButton.setContentAreaFilled(false);
-        greenButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        greenButton.setFocusPainted(false);
-        greenButton.setMaximumSize(new Dimension(60, 40));
-        greenButton.setMinimumSize(new Dimension(60, 40));
-        greenButton.setPreferredSize(new Dimension(60, 40));
-        greenButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                greenButtonActionPerformed(evt);
-            }
-        });
-
-        blueButton.setForeground(new Color(0, 0, 204));
-        blueButton.setIcon(new ImageIcon(getClass().getResource("/icons/blueSquare_48px.png"))); // NOI18N
-        blueButton.setBorderPainted(false);
-        blueButton.setContentAreaFilled(false);
-        blueButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        blueButton.setFocusPainted(false);
-        blueButton.setMaximumSize(new Dimension(60, 40));
-        blueButton.setMinimumSize(new Dimension(60, 40));
-        blueButton.setPreferredSize(new Dimension(60, 40));
-
-        redButton.setForeground(new Color(204, 0, 0));
-        redButton.setIcon(new ImageIcon(getClass().getResource("/icons/redSquare_48px.png"))); // NOI18N
-        redButton.setBorderPainted(false);
-        redButton.setContentAreaFilled(false);
-        redButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        redButton.setFocusPainted(false);
-        redButton.setMaximumSize(new Dimension(60, 40));
-        redButton.setMinimumSize(new Dimension(60, 40));
-        redButton.setPreferredSize(new Dimension(60, 40));
-        redButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                redButtonActionPerformed(evt);
-            }
-        });
-
-        yellowButton.setForeground(new Color(255, 255, 0));
-        yellowButton.setIcon(new ImageIcon(getClass().getResource("/icons/yellowSquare_48px.png"))); // NOI18N
-        yellowButton.setBorderPainted(false);
-        yellowButton.setContentAreaFilled(false);
-        yellowButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        yellowButton.setFocusPainted(false);
-        yellowButton.setMaximumSize(new Dimension(60, 40));
-        yellowButton.setMinimumSize(new Dimension(60, 40));
-        yellowButton.setPreferredSize(new Dimension(60, 40));
-        yellowButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                yellowButtonActionPerformed(evt);
-            }
-        });
-
-        selectColor.setFont(new Font("Segoe UI", 1, 18)); // NOI18N
-        selectColor.setForeground(new Color(0, 0, 0));
-        selectColor.setHorizontalAlignment(SwingConstants.CENTER);
-        selectColor.setIcon(new ImageIcon(getClass().getResource("/icons/colorSwatch_48px.png"))); // NOI18N
-        selectColor.setText("Seleziona Colore");
-        selectColor.setAutoscrolls(true);
-        selectColor.setIconTextGap(2);
-
-        GroupLayout chooseColorPanelLayout = new GroupLayout(chooseColorPanel);
-        chooseColorPanel.setLayout(chooseColorPanelLayout);
-        chooseColorPanelLayout.setHorizontalGroup(
-            chooseColorPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(chooseColorPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(selectColor, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(GroupLayout.Alignment.TRAILING, chooseColorPanelLayout.createSequentialGroup()
-                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(chooseColorPanelLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                    .addComponent(blueButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(yellowButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(chooseColorPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                    .addComponent(greenButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(redButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addGap(17, 17, 17))
-        );
-        chooseColorPanelLayout.setVerticalGroup(
-            chooseColorPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(GroupLayout.Alignment.TRAILING, chooseColorPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(selectColor, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(chooseColorPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(blueButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(redButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(chooseColorPanelLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                    .addComponent(greenButton, GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addComponent(yellowButton, GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                .addGap(49, 49, 49))
-        );
-	}
     
     private void setFrameSettings() {
     	JFrame frame = this;

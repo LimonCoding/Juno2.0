@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import gui.AccountEvent;
-
 import model.Account;
 import model.AccountListDatabase;
 import model.Card;
@@ -24,27 +22,27 @@ public class Controller {
     }
     
     public void resetGame() {
-        this.game.clearGame();
+        game.clearGame();
     }
     
     public Game getGame() {
-        return this.game;
+        return game;
     }
     
     public boolean getGameDirection() {
-    	return this.game.getGameDirection();
+    	return game.getGameDirection();
     }
     
     public Deck getDeck() {
-        return this.game.getDeck();
+        return game.getDeck();
     }
 
     public Discarded getDiscard() {
-        return this.game.getDiscard();
+        return game.getDiscard();
     }
     
     public Card getLastDiscard() {
-        return this.game.getDiscard().getLastDiscard();
+        return game.getDiscard().getLastDiscard();
     }
     
 	public void createAccountList() {
@@ -73,25 +71,28 @@ public class Controller {
     }
 	
 	public Player getCurrentPlayer() {
-        return this.game.getCurrentPlayer();
+        return game.getCurrentPlayer();
     }
 	
 	public int getCurrentPlayerId() {
-        return this.game.getCurrentPlayer().getGameId();
+        return game.getCurrentPlayer().getGameId();
     }
 	
 	public String getCurrentPlayerAlias() {
-	    return this.game.getCurrentPlayer().getAccountInfo().getAlias();
+	    return game.getCurrentPlayer().getAlias();
 	}
 	
 	public boolean aiPlay() {
-		return this.game.aiPlay(getLastDiscard());
+		return game.aiPlay(getLastDiscard());
 	}
 	
 	public int plays(Card card) {
 		if (game.getCurrentPlayer().getGameId() == 0) {
 			if (game.legitDiscard(card)) {
-				game.play(card);
+				boolean pausedGame = game.play(card);
+				if (pausedGame) {
+					return 3;
+				}
 			} else 
 				return 0;
 			return 1;
@@ -99,16 +100,35 @@ public class Controller {
 			return 2;
 	}
 	
-	public void setUno() {
-	    this.game.getBottomPlayer().setUno();
+	public void setUnoSafe(boolean unoSafe) {
+	    game.getBottomPlayer().setUnoSafe(unoSafe);
 	}
 	
+	public boolean getUnoSafe() {
+    	return game.getBottomPlayer().getUnoSafe();
+    }
+	
 	public boolean getUno() {
-	    return this.game.getBottomPlayer().getUno();
+	    return game.getBottomPlayer().getUno();
+	}
+	
+	public boolean checkUno() {
+	    return game.checkUno();
 	}
 	
 	public boolean checkWin() {
-	    return this.game.winGame(this.game.getCurrentPlayer());
+	    return game.winGame(game.getCurrentPlayer());
+	}
+	
+	public void iWon() {
+	    game.iWon();
+	}
+	
+	public boolean checkLoose() {
+		if ( game.winGame(game.getPreviousPlayer()) && game.getCurrentPlayer().getGameId()==0) {
+			return true;
+		}
+		return false;
 	}
 
 }

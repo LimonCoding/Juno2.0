@@ -88,7 +88,7 @@ public class Player extends Observable {
         return validCards;
     }
     
-    public Card.Color chooseColor() {
+    public Card.Color autoChooseColor() {
         List<Card> handNoWild = this.handCards.stream()
                 .filter(card -> !(card.isWild() || card.isWildFour()))
                 .collect(Collectors.toList());
@@ -129,8 +129,12 @@ public class Player extends Observable {
         return false;
     }
     
-    public boolean setUno() {
-    	return unoSafe ^= unoSafe;
+    public void setUnoSafe(boolean unoSafe) {
+    	this.unoSafe = unoSafe;
+    }
+    
+    public boolean getUnoSafe() {
+    	return unoSafe;
     }
 
     public Account getAccountInfo() {

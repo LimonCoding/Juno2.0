@@ -13,7 +13,7 @@ public class AccountTableModel extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = -4793731552947909903L;
 	private List<Account> db;
-    private String[] colNames = {"ID","AVATAR", "ALIAS", "LEVEL"};
+    private String[] colNames = {"ID","AVATAR", "ALIAS","PLAYED", "WON", "LEVEL"};
 
     public void setData(List<Account> db) {
         this.db = db;
@@ -40,25 +40,15 @@ public class AccountTableModel extends AbstractTableModel {
         switch (columnIndex) {
             case 0: 
                 return account.getId();
-//            case 1: 
-//            	ImageIcon[] avatars = {
-//                		new ImageIcon(getClass().getResource("/icons/icons8_compose_48px.png")),
-//                		new ImageIcon(getClass().getResource("/icons/icons8_home_48px.png"))
-//                };
-//                JComboBox<ImageIcon> combo = new JComboBox<>(avatars);
-//                combo.setModel(loadImages());
-//                combo.addActionListener(new ActionListener() {
-//        			@Override
-//        			public void actionPerformed(ActionEvent e) {
-//        				JOptionPane.showMessageDialog(null, combo.getSelectedItem());
-//        			}
-//        		});
-//                return new DefaultCellEditor(combo);
             case 1: 
                 return account.getAccountIcon();
             case 2: 
                 return account.getAlias();
             case 3: 
+                return account.getGamesPlayed();
+            case 4: 
+                return account.getGamesWon();
+            case 5: 
                 return account.getLevel();
         }
         return null;

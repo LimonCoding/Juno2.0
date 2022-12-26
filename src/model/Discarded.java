@@ -2,11 +2,14 @@ package model;
 
 import java.util.Stack;
 
-import model.Card.Value;
-
 public class Discarded extends Stack<Card> {
 
-    private Stack<Card> discarded;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1417022577116187699L;
+	
+	private Stack<Card> discarded;
     
     public Discarded() {
         this.discarded = initDiscard();

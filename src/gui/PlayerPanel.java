@@ -1,25 +1,12 @@
 package gui;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
@@ -28,6 +15,7 @@ import controller.Controller;
 import model.Card;
 import model.Player;
 
+@SuppressWarnings("deprecation")
 public class PlayerPanel extends JPanel implements Observer {
 	
 	/**
@@ -159,39 +147,17 @@ public class PlayerPanel extends JPanel implements Observer {
 					case 1:
 						frame.update(player, cards);
 						break;
-						
 					case 2:
 						JOptionPane.showMessageDialog(frame, 
-	                            "Wait your turn!", 
-	                            "Not your turn!", JOptionPane.ERROR_MESSAGE);
+	                            "ASPETTA IL TUO TURNO PER GIOCARE", 
+	                            "NON E' IL TUO TURNO", JOptionPane.ERROR_MESSAGE);
+						break;
+					case 3:
+						JOptionPane.showMessageDialog(frame, 
+	                            "RIPRENDI IL GIOCO PER POTER GIOCARE", 
+	                            "GIOCO IN PAUSA", JOptionPane.ERROR_MESSAGE);
 						break;
 					}
-                	
-//                    if (controller.getGame().getCurrentPlayer().equals(player)) {
-//                        if (controller.getGame().legitDiscard(card)) {
-//                        	controller.discard(card);
-//                            JButton buttonThatWasClicked = (JButton)e.getSource();
-//                            Container parent = buttonThatWasClicked.getParent();
-//                            parent.remove(buttonThatWasClicked);
-//                            parent.revalidate();
-//                            parent.repaint();
-//                            controller.play(card);
-//                            frame.getDeckPanel().getDiscardLabel().setVisible(true);
-//                            frame.getDeckPanel().getDiscardLabel().setIcon(carta.getIcon());
-//                            frame.updateCurrentPlayer(controller);
-//                            } else {
-//                                System.out.println(player);
-//                                System.out.println(controller.getGame().getCurrentPlayer());
-//                                JOptionPane.showMessageDialog(frame, 
-//                                    "This card is not legit to throw.", 
-//                                    "Unlegit discard!", JOptionPane.ERROR_MESSAGE);
-//                            }
-//                    } else {
-//                        System.out.println(controller.getGame().getCurrentPlayer());
-//                        JOptionPane.showMessageDialog(frame, 
-//                            "Wait your turn!", 
-//                            "Not your turn!", JOptionPane.ERROR_MESSAGE);
-//                    }
                 }
             });
 	    });
@@ -216,7 +182,6 @@ public class PlayerPanel extends JPanel implements Observer {
 				case 1:
 					frame.update(player, null);
 					break;
-					
 				case 2:
 					JOptionPane.showMessageDialog(frame, 
                             "Wait your turn!", 
@@ -278,6 +243,21 @@ public class PlayerPanel extends JPanel implements Observer {
 			this.setEnemyCard(player.getHandCards());
 		} else {
 			this.setCards(player.getHandCards());
+		}
+		if ( controller.checkWin() ) {
+        	boolean winOrLoose = false;
+			if (controller.getGame().getPreviousPlayer().getGameId() == 0) {
+    			winOrLoose = true;
+			} 
+			WinMessage gameOv = new WinMessage(winOrLoose);
+			gameOv.setVisible(true);
+    		gameOv.getHomeButton().addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					frame.homeAccountButtonActionPerformed(e);
+					gameOv.dispose();
+				}
+			});
 		}
 		if (controller.getCurrentPlayer().equals(this.player)) {
 			setPlayerTurn();
