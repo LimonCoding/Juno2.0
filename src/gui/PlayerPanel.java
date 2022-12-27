@@ -145,7 +145,7 @@ public class PlayerPanel extends JPanel implements Observer {
                                 "CARTA NON VALIDA", JOptionPane.ERROR_MESSAGE);
     					break;
 					case 1:
-						frame.update(player, cards);
+						frame.update(controller.getGame(), cards);
 						break;
 					case 2:
 						JOptionPane.showMessageDialog(frame, 
@@ -180,13 +180,18 @@ public class PlayerPanel extends JPanel implements Observer {
                             "CARTA NON VALIDA", JOptionPane.ERROR_MESSAGE);
 					break;
 				case 1:
-					frame.update(player, null);
+					frame.update(controller.getGame(), null);
 					break;
 				case 2:
 					JOptionPane.showMessageDialog(frame, 
-                            "Wait your turn!", 
-                            "Not your turn!", JOptionPane.ERROR_MESSAGE);
+                            "ASPETTA IL TUO TURNO PER GIOCARE", 
+                            "NON E' IL TUO TURNO", JOptionPane.ERROR_MESSAGE);
 					break;
+				case 3:
+					JOptionPane.showMessageDialog(frame, 
+                            "RIPRENDI IL GIOCO PER POTER GIOCARE", 
+                            "GIOCO IN PAUSA", JOptionPane.ERROR_MESSAGE);
+				break;
 				}
     		}
         });
@@ -243,21 +248,6 @@ public class PlayerPanel extends JPanel implements Observer {
 			this.setEnemyCard(player.getHandCards());
 		} else {
 			this.setCards(player.getHandCards());
-		}
-		if ( controller.checkWin() ) {
-        	boolean winOrLoose = false;
-			if (controller.getGame().getPreviousPlayer().getGameId() == 0) {
-    			winOrLoose = true;
-			} 
-			WinMessage gameOv = new WinMessage(winOrLoose);
-			gameOv.setVisible(true);
-    		gameOv.getHomeButton().addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					frame.homeAccountButtonActionPerformed(e);
-					gameOv.dispose();
-				}
-			});
 		}
 		if (controller.getCurrentPlayer().equals(this.player)) {
 			setPlayerTurn();

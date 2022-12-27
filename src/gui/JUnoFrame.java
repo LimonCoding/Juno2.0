@@ -60,17 +60,17 @@ public class JUnoFrame extends JFrame implements Observer {
     private JPanel bottomPlayerPanel;
     private JButton unoButton;
     ////////////////////////////////////
-    private JLabel selectColor;
-    private JPanel chooseColorPanel;
-    private JButton yellowButton;
-    private JButton redButton;
-    private JButton blueButton;
-    private JButton greenButton;
+//    private JLabel selectColor;
+//    private JPanel chooseColorPanel;
+//    private JButton yellowButton;
+//    private JButton redButton;
+//    private JButton blueButton;
+//    private JButton greenButton;
     
     private Controller controller;
     
     private Timer aiPlayerGuiUpdate = new Timer(Game.getSecAiPlay(), (ae)->{
-        update(null, null);
+        update(controller.getGame(), controller.getCurrentPlayer());
         SwingUtilities.updateComponentTreeUI(this);
     });
     
@@ -166,8 +166,6 @@ public class JUnoFrame extends JFrame implements Observer {
     	
     	backgroungPlay.setLayout(new BorderLayout());
     	
-    	update(bottomCardPanel.getPlayer(), null);
-
     	Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
         Dimension prefSize = new Dimension(1280, 48);
     	
@@ -220,12 +218,12 @@ public class JUnoFrame extends JFrame implements Observer {
 			    if ( controller.getCurrentPlayerId() == 0 ) {
 			    	bottomCardPanel.drawCard(controller.getDeck().getCard(Flipped.FLIPPED));
 	                controller.getGame().nextTurn();
-	                update(bottomCardPanel.getPlayer(), null);
+	                update(controller.getGame(), controller.getCurrentPlayer());
 	                setVisible(true);
                 } else {
-                    JOptionPane.showMessageDialog(frame, 
-                        "Wait your turn!", 
-                        "Not your turn!", JOptionPane.ERROR_MESSAGE);
+                	JOptionPane.showMessageDialog(frame, 
+                            "ASPETTA IL TUO TURNO PER GIOCARE", 
+                            "NON E' IL TUO TURNO", JOptionPane.ERROR_MESSAGE);
                 }
 			    
 			}
@@ -281,10 +279,12 @@ public class JUnoFrame extends JFrame implements Observer {
     
     @Override
 	public void update(Observable o, Object arg) {
-    	deckPanel.getDiscardLabel().setIcon(controller.getLastDiscard().getFaceCard());
-    	aiPlayerGuiUpdate.setRepeats(false);
-    	System.out.println("DI CHI E' IL TURNOOOOOOO???"+controller.getCurrentPlayerAlias());
         int currentPlayerId = controller.getCurrentPlayerId();
+        if (arg!=null) {
+        	System.out.println("!!!!!!!!!!!!!!!!!!!CHE OGGETTO E' "+arg.toString());
+		}
+        System.out.println("*******************OBSERVABLEEEEEEE "+o.toString());
+        System.out.println("-----------TURNOOOO------- "+ controller.getCurrentPlayerAlias());
 	    if (currentPlayerId != 0) {
 	    	boolean gameOver = controller.aiPlay();
 	    	if (gameOver) {
@@ -309,6 +309,7 @@ public class JUnoFrame extends JFrame implements Observer {
 					}
 				});
 			} else {
+				aiPlayerGuiUpdate.setRepeats(false);
 				aiPlayerGuiUpdate.start();
 			}
 		} else {

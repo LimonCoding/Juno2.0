@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -14,13 +16,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
-import com.formdev.flatlaf.FlatDarkLaf;
+import controller.Controller;
+import model.Card;
 
 public class SelectColor extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1228748442706314780L;
 	private PanelGradient backgroungColor;
 	private MarginPanel colorMarginPanel;
 	private JPanel chooseColorPanel;
@@ -31,28 +36,12 @@ public class SelectColor extends JFrame {
 	private JButton yellowButton;
 	private JLabel selectColor;
 	
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				FlatDarkLaf.setup();
-				UIManager.put( "Button.arc", 40 );
-				UIManager.put( "TextComponent.arc", 30 );
-				UIManager.put( "Component.focusWidth", 2 );
-				UIManager.put( "Component.innerFocusWidth", 1 );
-				UIManager.put( "Button.innerFocusWidth", 1 );
-				SelectColor frame = new SelectColor();
-				frame.setPreferredSize(new Dimension(550,320));
-				frame.setMinimumSize(new Dimension(550,320));
-				frame.setUndecorated(true);
-				frame.setLocationRelativeTo(null);
-				frame.setVisible(true);
-			}
-		});
-	}
+	private Card card;
+	private Controller controller;
 	
-	public SelectColor() {
-		
-
+	public SelectColor(Controller controller, Card card) {
+		this.card = card;
+		this.controller = controller;
 		backgroungColor = new PanelGradient();
 		backgroungColor.setLayout(new BorderLayout());
     	colorMarginPanel = new MarginPanel();
@@ -63,24 +52,46 @@ public class SelectColor extends JFrame {
 		colorMarginPanel.add(chooseColorPanel, BorderLayout.CENTER);
 		backgroungColor.add(colorMarginPanel, BorderLayout.CENTER);
 		getContentPane().add(backgroungColor);
+		
+		setPreferredSize(new Dimension(550,320));
+		setMinimumSize(new Dimension(550,320));
+		setUndecorated(true);
+		setLocationRelativeTo(null);
+		setVisible(true);
 	}
 	
 	
 	private void greenButtonActionPerformed(ActionEvent evt) {                                            
-        this.dispose();
+		card.setColor(model.Card.Color.GREEN);
+		controller.getGame().getDiscard().setDiscard(card);
+		controller.getGame().nextTurn();
+		this.dispose();
     }                                           
 
-    private void redButtonActionPerformed(ActionEvent evt) {                                          
-    	this.dispose();
+    private void redButtonActionPerformed(ActionEvent evt) {  
+    	card.setColor(model.Card.Color.RED);
+    	controller.getGame().getDiscard().setDiscard(card);
+		controller.getGame().nextTurn();
+		this.dispose();
     }   
     
-    private void blueButtonActionPerformed(ActionEvent evt) {                                          
+    private void blueButtonActionPerformed(ActionEvent evt) {   
+    	card.setColor(model.Card.Color.BLUE);
+    	controller.getGame().getDiscard().setDiscard(card);
+		controller.getGame().nextTurn();
     	this.dispose();
     }
 
-    private void yellowButtonActionPerformed(ActionEvent evt) {                                             
+    private void yellowButtonActionPerformed(ActionEvent evt) { 
+    	card.setColor(model.Card.Color.YELLOW);
+    	controller.getGame().getDiscard().setDiscard(card);
+		controller.getGame().nextTurn();
     	this.dispose();
     }     
+    
+    public model.Card.Color getColor() {
+    	return card.getColor();
+    }
     
     private void setChooseColorPanel() {
 		greenButton = new JButton();

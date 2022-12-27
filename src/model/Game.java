@@ -112,9 +112,9 @@ public class Game extends Observable {
     
 	private void dealCards(List<Player> playersList) {
         for (AiPlayer p : aiPlayersList) {
-            p.setHandCards(new ArrayList<>(deck.getCards(2, FLIPPED)));
+            p.setHandCards(new ArrayList<>(deck.getCards(7, FLIPPED)));
         }
-        bottomPlayer.setHandCards(new ArrayList<>(deck.getCards(2, FLIPPED)));
+        bottomPlayer.setHandCards(new ArrayList<>(deck.getCards(7, FLIPPED)));
         
         setChanged();
     	notifyObservers();
@@ -197,9 +197,12 @@ public class Game extends Observable {
                 System.out.println(p.getAlias()+" have to draw a card");
                 nextTurn();
             }
+            System.out.println("it's change something?????????? "+this.getCurrentPlayer());
             setChanged();
         	notifyObservers();
         });
+        
+        
         
         if (!paused) {
         	if (!winGame(sortedPlayerList.get(previousId()))) {
@@ -240,7 +243,6 @@ public class Game extends Observable {
                 }
                 
                 playersList.get(0).discard(rejected);
-                discardList.setDiscard(rejected);
                 
                 Timer unoCheck = new Timer(SEC_AI_PLAY+4000, (ae)->{
                     if ( checkUno() && !(bottomPlayer.getUnoSafe()) ) {
@@ -252,7 +254,6 @@ public class Game extends Observable {
                 
                 unoCheck.setRepeats(false);
                 unoCheck.start(); 
-                nextTurn();
             }
 		} else {
 			System.out.println("GIOCO IN PAUSAAAA");

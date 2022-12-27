@@ -7,8 +7,7 @@ import model.Card.Color;
 import model.Card.Value;
 
 
-@SuppressWarnings("deprecation")
-public class Player extends Observable {
+public class Player {
 
     private List<Card> handCards;
     private Account accountInfo;
@@ -59,9 +58,6 @@ public class Player extends Observable {
 
     public void setHandCards(List<Card> handCards) {
         this.handCards = handCards;
-        
-        setChanged();
-        notifyObservers();
     }
     
     public void drawCard(Card handCard) {

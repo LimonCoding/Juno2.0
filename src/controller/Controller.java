@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import gui.JUnoFrame;
+import gui.SelectColor;
 import model.Account;
 import model.AccountListDatabase;
 import model.Card;
@@ -93,6 +95,15 @@ public class Controller {
 				if (pausedGame) {
 					return 3;
 				}
+//				if (card.isColorWild()) {
+//					SelectColor sc = new SelectColor(this, card);
+//					card.setColor(sc.getColor());
+//				} else {
+//					game.getDiscard().setDiscard(card);
+//					game.nextTurn();
+//				}
+				game.getDiscard().setDiscard(card);
+				game.nextTurn();
 			} else 
 				return 0;
 			return 1;

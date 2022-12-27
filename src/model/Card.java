@@ -112,6 +112,10 @@ public class Card {
         return this.getValue().equals(Value.WILD_FOUR);
     }
     
+    public boolean isColorWild() {
+		return this.getColor().equals(Color.WILD);
+	}
+    
     public boolean isSameColor(Card card) {
         return this.getColor().equals(card.getColor());
     }
