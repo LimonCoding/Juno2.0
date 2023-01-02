@@ -9,22 +9,29 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.*;
-
+/**
+ * A panel that serves as the home screen for the UNO game.
+ * Contains a background gradient, a logo button that allows the player to create a new account for playing, and welcome messages.
+ * @author Simone
+ */
 public class HomeCard {
-	
+	/** The main panel with a gradient background. */
 	private PanelGradient backgroungHome;
-    
+    /** A panel with margin used to make margins between frame and home card panel. */
     private MarginPanel homeMarginPanel;
-    
-    
+    /** A panel that contains the welcome message labels and logo button. */
     private JLabel welcome;
+    /** A label that displays the welcome message. */
     private JPanel welcomePanel;
-    private JButton logo;
+    /** A label that displays a message to click the logo button. */
     private JLabel cliccaLogo;
-    
+    /** A button with the UNO logo that allows the player to to create a new account for playing when clicked. */
+    private JButton logo;
+    /** A filler panel used to add space to the right of the logo button. */
     private Box.Filler leftMarginLogo;
+    /** A filler panel used to add space to the left of the logo button. */
     private Box.Filler rightMarginLogo;
-
+    /** Constructs a new HomeCard panel. */
 	HomeCard() {
     	backgroungHome = new PanelGradient();
     	homeMarginPanel = new MarginPanel();
@@ -83,19 +90,33 @@ public class HomeCard {
         homeMarginPanel.add(welcomePanel, BorderLayout.CENTER);
         backgroungHome.add(homeMarginPanel, BorderLayout.CENTER);
 	}
-	
+	/**
+	 * Handles the event when the mouse enters the logo button.
+	 * Changes the logo icon to unoLogoOnButton.png.
+	 * @param evt the mouse event
+	 */
 	private void logoMouseEntered(MouseEvent evt) {                                  
         logo.setIcon(new ImageIcon(getClass().getResource("/icons/unoLogoOnButton.png")));
     }                                 
-
+	/**
+	 * Handles the event when the mouse exits the logo button.
+	 * Changes the logo icon to unoLogo.png.
+	 * @param evt the mouse event
+	 */
     private void logoMouseExited(MouseEvent evt) {                                 
         logo.setIcon(new ImageIcon(getClass().getResource("/icons/unoLogo.png")));
     }
-
+    /**
+     * Gets the logo button.
+     * @return the logo button
+     */
 	public JButton getLogoButton() {
 		return logo;
 	} 
-	
+	/**
+	 * Gets the background panel.
+	 * @return the background panel
+	 */
 	public PanelGradient getBackground() {
 		return backgroungHome;
 	} 

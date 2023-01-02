@@ -1,19 +1,7 @@
 package gui;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,75 +9,93 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.Box.Filler;
 import javax.swing.*;
-import javax.swing.Box.*;
-import javax.swing.event.*;
 
 import controller.Controller;
-import model.Game;
-import model.Player;
 import model.Game.Flipped;
 
 /**
- *
+ * The main frame for the UNO game. 
+ * This frame displays the home screen, the account selection screen, and the game screen.
  * @author Simone
  */
+@SuppressWarnings("deprecation")
 public class JUnoFrame extends JFrame implements Observer {
 
     /**
-	 * 
+	 * a serialization identifier for the class
 	 */
 	private static final long serialVersionUID = 481508119037659069L;
-	/////////////////////////////////////////////////////////////////
-	private HomeCard homeCard;
-	private AccountCard accountCard;
-	
-    private PanelGradient backgroungPlay;
-    ////////////////////////////////////
-    private JPanel pausePanel;
-    private JButton pauseButton;
-    private JButton backButton;
-    private JPanel playPan;
-    private DeckPanel deckPanel;
-    private JPanel topPlayerPanel;
-    private PlayerPanel topCardPanel;
-    private PlayerPanel rightPlayerPanel;
-    private PlayerPanel leftPlayerPanel;
-    private PlayerPanel bottomCardPanel;
-    private List<PlayerPanel> playerList;
-    private JPanel bottomPlayerPanel;
-    private JButton unoButton;
-    ////////////////////////////////////
-//    private JLabel selectColor;
-//    private JPanel chooseColorPanel;
-//    private JButton yellowButton;
-//    private JButton redButton;
-//    private JButton blueButton;
-//    private JButton greenButton;
-    
-    private Controller controller;
-    
-    private Timer aiPlayerGuiUpdate = new Timer(Game.getSecAiPlay(), (ae)->{
-        update(controller.getGame(), controller.getCurrentPlayer());
-        SwingUtilities.updateComponentTreeUI(this);
-    });
-    
-	// End of variables declaration
-	
 	/**
-     * Creates new form JUnoFrame
+	 * an object that extends JPanel representing the home screen of the game
+	 */
+	private HomeCard homeCard;
+	/**
+	 * an object that extends JPanel representing the account selection screen of the game
+	 */
+	private AccountCard accountCard;
+	/**
+	 * an object that extends JPanel representing the background of the game screen
+	 */
+    private PanelGradient backgroungPlay;
+    /**
+     * a panel containing the pause and back buttons.
+     */
+    private JPanel pausePanel;
+    /**
+     * a button that toggles the paused state of the game
+     */
+    private JButton pauseButton;
+    /**
+     * a button that takes the user back to the account selection screen
+     */
+    private JButton backButton;
+    /**
+     * a panel containing the game elements (e.g. deck, players)
+     */
+    private JPanel playPan;
+    /**
+     * a panel representing the game's draw, discard piles and game direction
+     */
+    private DeckPanel deckPanel;
+    /** a panel representing the top player in the game */
+    private JPanel topPlayerPanel;
+    /** a panel containing the top player's hand card and his name */
+    private PlayerPanel topCardPanel;
+    /** a panel containing the right player's hand card and his name */
+    private PlayerPanel rightPlayerPanel;
+    /** a panel containing the left player's hand card and his name */
+    private PlayerPanel leftPlayerPanel;
+    /** a panel containing the bottom player's hand card and his name */
+    private PlayerPanel bottomCardPanel;
+    /** a list of all player panels in the game */
+    private List<PlayerPanel> playerList;
+    /** a panel representing the bottom player in the game with UNO button */
+    private JPanel bottomPlayerPanel;
+    /** a button that allows the player to declare UNO */
+    private JButton unoButton;
+    /** an object that controls the game's logic and data */
+    private Controller controller;
+    /**
+     * Constructs a new UNO game frame.
+     * Initializes a Controller object and creates the list of accounts.
+     * Calls the initComponents() method to initialize the frame's components.
      */
     public JUnoFrame() {
     	controller = new Controller();
     	controller.createAccountList();
         initComponents();
     }
-
+    /**
+     * Initializes the components of the UNO game frame.
+     * Sets the frame's properties and layout.
+     * Adds the home screen, account selection screen, and game screen to the content pane.
+     * Packs the frame and sets its location relative to the center of the screen.
+     */
     private void initComponents() {
-
     	setFrameSettings();
         getContentPane().setLayout(new CardLayout());
-        
         homeCard = new HomeCard();
         homeCard.getLogoButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -97,7 +103,6 @@ public class JUnoFrame extends JFrame implements Observer {
             }
         });
         getContentPane().add(homeCard.getBackground(), "card1");
-
         
         accountCard = new AccountCard(controller, this);
         accountCard.getBackButton().addActionListener(new ActionListener() {
@@ -115,8 +120,11 @@ public class JUnoFrame extends JFrame implements Observer {
         pack();
         setLocationRelativeTo(null);
     }                      
-
-    @SuppressWarnings("deprecation")
+    /**
+     * Initializes the components of the game screen.
+     * 
+     * @param id the id of the account selected to play with
+     */
 	private void createGameCard(int id) {
     	backgroungPlay = new PanelGradient();
     	
@@ -134,11 +142,7 @@ public class JUnoFrame extends JFrame implements Observer {
         bottomCardPanel = new PlayerPanel(controller, frame, controller.getGame().getBottomPlayer(), -30, 20);
         playerList = new ArrayList<>(Arrays.asList(topCardPanel, leftPlayerPanel, rightPlayerPanel, bottomCardPanel));
         
-        controller.getGame().addObserver(topCardPanel);
-        controller.getGame().addObserver(leftPlayerPanel);
-        controller.getGame().addObserver(rightPlayerPanel);
-        controller.getGame().addObserver(bottomCardPanel);
-        controller.getGame().addObserver(deckPanel);
+        controller.getGame().addObserver(this);
         
         for (PlayerPanel playerPanel : playerList) {
         	if (playerPanel.getPlayer().getGameId() != 0) {
@@ -161,7 +165,6 @@ public class JUnoFrame extends JFrame implements Observer {
         playPan = new JPanel();
         topPlayerPanel = new JPanel();
         bottomPlayerPanel = new JPanel();
-//        chooseColorPanel = new JPanel();
         unoButton = new JButton();
     	
     	backgroungPlay.setLayout(new BorderLayout());
@@ -207,19 +210,20 @@ public class JUnoFrame extends JFrame implements Observer {
         bottomPlayerPanel.setOpaque(false);
         bottomCardPanel.setPreferredSize(new Dimension(900, 250));
 
-//        setChooseColorPanel();
         setUnoButton();
         
         
         deckPanel.getDeckButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Current player id: "+controller.getGame().getCurrentPlayer().getGameId());
 			    if ( controller.getCurrentPlayerId() == 0 ) {
-			    	bottomCardPanel.drawCard(controller.getDeck().getCard(Flipped.FLIPPED));
-	                controller.getGame().nextTurn();
-	                update(controller.getGame(), controller.getCurrentPlayer());
-	                setVisible(true);
+			    	if ( !controller.getGame().getPaused() ) {
+			    		bottomCardPanel.drawCard(controller.getDeck().getCard(Flipped.FLIPPED, controller.getDiscard()));
+					} else {
+						JOptionPane.showMessageDialog(frame, 
+	                            "RIPRENDI IL GIOCO PER POTER GIOCARE", 
+	                            "GIOCO IN PAUSA", JOptionPane.ERROR_MESSAGE);
+					}
                 } else {
                 	JOptionPane.showMessageDialog(frame, 
                             "ASPETTA IL TUO TURNO PER GIOCARE", 
@@ -257,13 +261,21 @@ public class JUnoFrame extends JFrame implements Observer {
         
         getContentPane().add(backgroungPlay, "card3");
     }
-    
+	/**
+	 * An object used to synchronize access to resources.
+	 */
     private Object lock = new Object();
+    /**
+     * Action listener to pause and resume the game. 
+     * When the pause button is clicked, the game is paused or resumed.
+     * The image on the button is also changed to reflect the current state of the game (paused or not paused).
+     * When the game is paused, the lock object is notified to unblock any threads that may be waiting on it.
+     */
     private java.awt.event.ActionListener pauseResume =
             new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                		controller.getGame().setPaused(!controller.getGame().getPaused());
+                		controller.pauseGame();
                         ImageIcon pauseImage = new ImageIcon(getClass().getResource("/icons/pauseButton_48px.png"));
                         ImageIcon resumeImage = new ImageIcon(getClass().getResource("/icons/playButton_48px.png"));
                         pauseButton.setIcon(controller.getGame().getPaused()?resumeImage:pauseImage);
@@ -272,21 +284,26 @@ public class JUnoFrame extends JFrame implements Observer {
                     }
                 }
             };
-    
+    /**
+     * Gets the {@link DeckPanel} object associated with this JUnoFrame.
+     * @return the {@link DeckPanel} object associated with this JUnoFrame
+     */
     public DeckPanel getDeckPanel() {
 	    return deckPanel;
 	}
-    
+    /**
+     * update method receives updates from the game and updates the game accordingly.
+     * This method first checks if it is the AI's turn to play. If it is, the AI plays a card and if the game is over, the game is finished.
+     * If it is not the AI's turn, the method checks if the player has lost the game. If the player has lost, the game is finished.
+     * This method also adds an action listener to the uno button and updates the game's UI.
+     * @param o the Observable object that triggered the update
+     * @param arg the object that is passed as an argument
+     */
     @Override
 	public void update(Observable o, Object arg) {
-        int currentPlayerId = controller.getCurrentPlayerId();
-        if (arg!=null) {
-        	System.out.println("!!!!!!!!!!!!!!!!!!!CHE OGGETTO E' "+arg.toString());
-		}
-        System.out.println("*******************OBSERVABLEEEEEEE "+o.toString());
-        System.out.println("-----------TURNOOOO------- "+ controller.getCurrentPlayerAlias());
-	    if (currentPlayerId != 0) {
-	    	boolean gameOver = controller.aiPlay();
+	    if (controller.getCurrentPlayerId() != 0) {
+	    	boolean gameOver = false;
+	    	gameOver = controller.aiPlay();
 	    	if (gameOver) {
 	    		controller.getGame().winGame(controller.getGame().getPreviousPlayer());
 	    		boolean winOrLoose = false;
@@ -300,7 +317,7 @@ public class JUnoFrame extends JFrame implements Observer {
 					public void actionPerformed(ActionEvent e) {
 						controller.iWon();
 						try {
-		                    controller.saveToFile(new File("saves/saves.txt"));
+		                    controller.saveToFile();
 		                } catch (IOException e1) {
 		                    e1.printStackTrace();
 		                }
@@ -308,9 +325,6 @@ public class JUnoFrame extends JFrame implements Observer {
 						gameOv.dispose();
 					}
 				});
-			} else {
-				aiPlayerGuiUpdate.setRepeats(false);
-				aiPlayerGuiUpdate.start();
 			}
 		} else {
 			if ( controller.checkLoose() ) {
@@ -325,7 +339,7 @@ public class JUnoFrame extends JFrame implements Observer {
 					public void actionPerformed(ActionEvent e) {
 						controller.iWon();
 						try {
-		                    controller.saveToFile(new File("saves/saves.txt"));
+		                    controller.saveToFile();
 		                } catch (IOException e1) {
 		                    e1.printStackTrace();
 		                }
@@ -344,7 +358,10 @@ public class JUnoFrame extends JFrame implements Observer {
 	    checkUno();
 	    SwingUtilities.updateComponentTreeUI(this);
 	}
-    
+    /**
+     * This method sets the icon, border painting, content area filling, 
+     * cursor and focus painting of the uno button.
+     */
 	private void setUnoButton() {
 		unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButton_200px.png"))); // NOI18N
         unoButton.setBorderPainted(false);
@@ -352,37 +369,67 @@ public class JUnoFrame extends JFrame implements Observer {
         unoButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         unoButton.setFocusPainted(false);
 	}
-	
+	/**
+	 * This method checks if the bottom player has only one card in their hand and
+	 * if they haven't, sets the blank "UNO" button on the game screen.
+	 */
 	private void checkUno() {
 		if ( !(controller.getUno()) ) {
 			unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButton_200px.png"))); // NOI18N
 		}
 	}
-	
+	/**
+	 * The unoButtonActionPerformed method is a private method that is called when the unoButton is clicked.
+	 * 
+	 * @param evt the ActionEvent object that is triggered when the unoButton is clickedt
+	 */
 	private void unoButtonActionPerformed(ActionEvent evt) {  
 		controller.setUnoSafe(false);
-		if ( (controller.checkUno()) ) {
-			unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButtonClicked_200px.png"))); // NOI18N
-			controller.setUnoSafe(true);
-		} 
+		 // If the checkUno method in the controller object returns true
+		  if ( (controller.checkUno()) ) {
+		  	// Set the icon of the unoButton to the unoButtonClicked image
+		  	unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButtonClicked_200px.png"))); // NOI18N
+		  	
+		  	// Set the unoSafe field in the controller object to true
+		  	controller.setUnoSafe(true);
+		  } 
 	} 
-	
+	/**
+	 * The logoActionPerformed method is a private method that is called when the logo button is clicked.
+	 * 
+	 * @param evt the ActionEvent object that is triggered when the logo button is clicked
+	 */
 	private void logoActionPerformed(ActionEvent evt) {                                     
 		homeCard.getBackground().setVisible(false);
 		accountCard.getBackground().setVisible(true);
     }                                    
-
+	/**
+	 * The backAccountButtonActionPerformed method is a private method that is called when the backAccountButton is clicked.
+	 * 
+	 * @param evt the ActionEvent object that is triggered when the backAccountButton is clicked
+	 */
     private void backAccountButtonActionPerformed(ActionEvent evt) {                                                  
         accountCard.getBackground().setVisible(false);
         homeCard.getBackground().setVisible(true);
     }       
-    
+    /**
+     * The homeAccountButtonActionPerformed method is a public method that is called when the homeAccountButton is clicked.
+     * 
+     * @param evt the ActionEvent object that is triggered when the homeAccountButton is clicked
+     */
     public void homeAccountButtonActionPerformed(ActionEvent evt) { 
     	backgroungPlay.setVisible(false);        
     	controller.resetGame();
         accountCard.getBackground().setVisible(true);
     } 
-    
+    /**
+     * This method is called when the play button is clicked. It checks if the list of accounts is empty. If it is not
+     * empty, it retrieves the selected row from the table and gets the account ID from the table. It then creates a
+     * new game with the selected account and displays the game screen. If the list of accounts is empty, it shows a
+     * warning message.
+     *
+     * @param evt the event that triggers this method
+     */
     private void playButtonActionPerformed(ActionEvent evt) {  
     	if (!controller.getAccounts().isEmpty()) {
             JTable table = accountCard.getTablePanel().getTable();
@@ -404,7 +451,12 @@ public class JUnoFrame extends JFrame implements Observer {
                     "INSERISCI UN ACCOUNT", JOptionPane.WARNING_MESSAGE);
         }
     }                                          
-
+    /**
+     * This method is called when the back game button is clicked. It prompts the user to confirm if they want to go
+     * back to the previous screen. If the user confirms, it resets the current game and displays the previous screen.
+     *
+     * @param evt the event that triggers this method
+     */
     private void backGameButtonActionPermormed(ActionEvent evt) {  
     	int result = JOptionPane.showConfirmDialog(this,
                 "Sei sicuro di voler tornare indietro?\nPerderai i progressi di questa partita!",
@@ -416,7 +468,14 @@ public class JUnoFrame extends JFrame implements Observer {
                 backgroungPlay.setVisible(false);
             }
     }
-    
+    /**
+     * This method sets the frame settings for the application window. 
+     * <p>It sets the default close operation to do nothing when the close button is clicked. 
+     * It adds a window listener to prompt the user to confirm if they want to exit
+     * the application when the close button is clicked. It sets the title of the window, packs the window, sets the
+     * minimum size, maximizes the window, makes the window resizable, centers the window on the screen, and makes the
+     * window visible.
+     */
     private void setFrameSettings() {
     	JFrame frame = this;
     	setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -439,6 +498,5 @@ public class JUnoFrame extends JFrame implements Observer {
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
-
 }
 

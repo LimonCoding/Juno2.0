@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -14,22 +12,36 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-import com.formdev.flatlaf.FlatDarkLaf;
-
+/**
+ * JFrame for displaying a message when the game is won or lost.
+ * 
+ * @author Simone
+ */
 public class WinMessage extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -468103537745421425L;
+	/** The panel for the gradient background. */
 	private PanelGradient backgroungWin;
+	/** The margin panel. */
 	private MarginPanel winMarginPanel;
+	/** The panel for the win message. */
 	private JPanel winPanel;
-	
+	/** The label for the fireworks icon. */
 	private JLabel fireworks;
+	/** The label for the win message. */
 	private JLabel winLabel;
+	/** The label for the lose message. */
 	private JLabel looseLabel;
+	/** The button for returning to the homepage. */
 	private JButton homeButton;
-	
+	/**
+     * Constructs a new WinMessage with the specified win or lose status.
+     * 
+     * @param winOrLoose whether the game was won (`true`) or lost (`false`)
+     */
 	public WinMessage(boolean winOrLoose) {
 		
 		backgroungWin = new PanelGradient();
@@ -43,7 +55,6 @@ public class WinMessage extends JFrame {
 			setLoosePanel();
 		}
 		
-		
 		winMarginPanel.add(winPanel, BorderLayout.CENTER);
 		backgroungWin.add(winMarginPanel, BorderLayout.CENTER);
 		getContentPane().add(backgroungWin);
@@ -53,11 +64,17 @@ public class WinMessage extends JFrame {
 		setUndecorated(true);
 		setLocationRelativeTo(null);
 	}
-	
+	/**
+     * Gets the home button.
+     * 
+     * @return the home button
+     */
 	public JButton getHomeButton() {
 		return homeButton;
 	}
-	
+	/**
+     * Sets up the panel for the win message.
+     */
 	private void setWinPanel() {
 		fireworks = new JLabel();
 		winLabel = new JLabel();
@@ -89,7 +106,9 @@ public class WinMessage extends JFrame {
 		winPanel.add(fireworks);
 		winPanel.add(homeButton);
 	}
-	
+	/**
+	 * Sets up the panel for the lose message.
+	 */
 	private void setLoosePanel() {
 		looseLabel = new JLabel();
 		homeButton = new JButton();

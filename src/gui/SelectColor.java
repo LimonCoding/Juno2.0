@@ -7,8 +7,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -19,26 +17,42 @@ import javax.swing.SwingConstants;
 
 import controller.Controller;
 import model.Card;
-
+/**
+ * A GUI class that allows a user to select a color for a Card object.
+ * The class extends the JFrame class and contains various buttons and panels for
+ * selecting and displaying the selected color.
+ * 
+ * @author Simone
+ */
 public class SelectColor extends JFrame {
-
-	/**
-	 * 
-	 */
+	/** A unique serial version identifier for this class. */
 	private static final long serialVersionUID = 1228748442706314780L;
+	/** A PanelGradient object that serves as the background of the frame. */
 	private PanelGradient backgroungColor;
+	/** A MarginPanel object that serves as a margin around the chooseColorPanel. */
 	private MarginPanel colorMarginPanel;
+	/** A JPanel object that contains buttons for selecting a color. */
 	private JPanel chooseColorPanel;
-	
+	/** A JButton object for selecting the color green. */
 	private JButton greenButton;
+	/** A JButton object for selecting the color blue. */
 	private JButton blueButton;
+	/** A JButton object for selecting the color red. */
 	private JButton redButton;
+	/** A JButton object for selecting the color yellow. */
 	private JButton yellowButton;
+	/** A JLabel object for displaying the text "Select a color:" */
 	private JLabel selectColor;
-	
+	/** A Card object that represents the card whose color is being selected. */
 	private Card card;
+	/** A Controller object that serves as the controller for the program. */
 	private Controller controller;
-	
+	/**
+	 * Constructs a new SelectColor object with the specified controller and card.
+	 * 
+	 * @param controller The controller for the program.
+	 * @param card The card whose color is being selected.
+	 */
 	public SelectColor(Controller controller, Card card) {
 		this.card = card;
 		this.controller = controller;
@@ -59,40 +73,69 @@ public class SelectColor extends JFrame {
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
-	
-	
+	/**
+	 * Handles the action performed when the green button is clicked.
+	 * Sets the color of the wild card to green and adds the card to the discard pile.
+	 * Then, ends the current turn and closes the window.
+	 *
+	 * @param evt the action event that triggered this method
+	 */
 	private void greenButtonActionPerformed(ActionEvent evt) {                                            
 		card.setColor(model.Card.Color.GREEN);
-		controller.getGame().getDiscard().setDiscard(card);
+		controller.getGame().getDiscard().addDiscard(card);
 		controller.getGame().nextTurn();
 		this.dispose();
     }                                           
-
+	/**
+	 * Handles the action performed when the red button is clicked.
+	 * Sets the color of the wild card to red and adds the card to the discard pile.
+	 * Then, ends the current turn and closes the window.
+	 *
+	 * @param evt the action event that triggered this method
+	 */
     private void redButtonActionPerformed(ActionEvent evt) {  
     	card.setColor(model.Card.Color.RED);
-    	controller.getGame().getDiscard().setDiscard(card);
+    	controller.getGame().getDiscard().addDiscard(card);
 		controller.getGame().nextTurn();
 		this.dispose();
     }   
-    
+    /**
+     * Handles the action performed when the blue button is clicked.
+     * Sets the color of the wild card to blue and adds the card to the discard pile.
+     * Then, ends the current turn and closes the window.
+     *
+     * @param evt the action event that triggered this method
+     */
     private void blueButtonActionPerformed(ActionEvent evt) {   
     	card.setColor(model.Card.Color.BLUE);
-    	controller.getGame().getDiscard().setDiscard(card);
+    	controller.getGame().getDiscard().addDiscard(card);
 		controller.getGame().nextTurn();
     	this.dispose();
     }
-
+    /**
+     * Handles the action performed when the yellow button is clicked.
+     * Sets the color of the wild card to yellow and adds the card to the discard pile.
+     * Then, ends the current turn and closes the window.
+     *
+     * @param evt the action event that triggered this method
+     */
     private void yellowButtonActionPerformed(ActionEvent evt) { 
     	card.setColor(model.Card.Color.YELLOW);
-    	controller.getGame().getDiscard().setDiscard(card);
+    	controller.getGame().getDiscard().addDiscard(card);
 		controller.getGame().nextTurn();
     	this.dispose();
     }     
-    
+    /**
+     * Gets the current color of the card.
+     * @return the current color of the card
+     */
     public model.Card.Color getColor() {
     	return card.getColor();
     }
-    
+    /**
+     * Initializes the chooseColorPanel and sets its layout, buttons, and labels.
+     * The chooseColorPanel allows the user to select a color for the card.
+     */
     private void setChooseColorPanel() {
 		greenButton = new JButton();
         blueButton = new JButton();

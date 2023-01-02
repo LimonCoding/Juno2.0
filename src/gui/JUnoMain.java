@@ -7,11 +7,13 @@ import javax.swing.UIManager;
 import com.formdev.flatlaf.FlatDarkLaf;
 
 /**
- *
+ * The main entry point for the application. This method sets up the user interface and makes it visible.
+ * 
  * @author Simone
  */
 public class JUnoMain {
     /**
+     * The main function to start the program.
      * @param args the command line arguments
      */
     public static void main(String[] args) {

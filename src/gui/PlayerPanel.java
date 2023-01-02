@@ -14,21 +14,29 @@ import javax.swing.border.TitledBorder;
 import controller.Controller;
 import model.Card;
 import model.Player;
-
+/**
+ * Represents a panel that displays information about a player in a game of UNO.
+ * The panel displays the player's alias and their current hand of cards.
+ * The panel also observes the game and updates its display when the game state changes.
+ * @author Simone
+ */
 @SuppressWarnings("deprecation")
 public class PlayerPanel extends JPanel implements Observer {
 	
-	/**
-	 * 
-	 */
+	/** The serial version UID for the PlayerPanel class. */
 	private static final long serialVersionUID = 1L;
+	/** The inner border that displays the player's alias. */
 	private TitledBorder innerBorder;
+	/** The outer border for the panel. */
 	private Border outerBorder;
+	/** The frame that contains the PlayerPanel. */
 	private JUnoFrame frame;
+	/** The controller for the game of UNO. */
 	private Controller controller;
+	/** The layout manager for the panel. */
 	private FlowLayout myCardLayout;
+	/** The player whose information is displayed in the panel. */
     private Player player;
-    
     /** Stroke size. it is recommended to set it to 1 for better view */
     protected int strokeSize = 1;
     /** Color of shadow */
@@ -38,18 +46,26 @@ public class PlayerPanel extends JPanel implements Observer {
     /** Sets if it has an High Quality view */
     protected boolean highQuality = true;
     /** Double values for Horizontal and Vertical radius of corner arcs */
-    protected Dimension arcs = new Dimension(20, 20);
-    /** Distance between shadow border and opaque panel border */
-    protected int shadowGap = 5;
+    protected Dimension arcs = new Dimension(200, 200);
     /** The offset of shadow.  */
-    protected int shadowOffset = 4;
+    protected int shadowOffset = 0;
     /** The transparency value of shadow. ( 0 - 255) */
     protected int shadowAlpha = 80;
-	
+    /**
+	 * Constructs a new PlayerPanel for the specified player.
+	 * 
+	 * @param controller the controller for the game of UNO
+	 * @param frame the frame that contains the PlayerPanel
+	 * @param player the player whose information is displayed in the panel
+	 * @param xSpace the horizontal space between cards in the panel
+	 * @param ySpace the vertical space between cards in the panel
+	 */
 	public PlayerPanel(Controller controller, JUnoFrame frame, Player player, int xSpace, int ySpace) {
         this.frame = frame;
         this.controller = controller;
         this.player = player;
+        
+        this.controller.getGame().addObserver(this);
         
         setInnerBorder(player.getAlias());
         setOuterBorder();
@@ -60,18 +76,26 @@ public class PlayerPanel extends JPanel implements Observer {
         setLayout(myCardLayout);
         setOpaque(false);
     }
-	
+	/**
+	 * Sets the inner border of the PlayerPanel to display the specified title.
+	 * The inner border is a TitledBorder with a rounded line border and a title font.
+	 * 
+	 * @param title the title to display in the inner border
+	 */
 	public void setInnerBorder(String title) {
 		LineBorder roundedLineBorder = new LineBorder(Color.BLACK, 0, true);
 		innerBorder = new TitledBorder(roundedLineBorder, title);
 		innerBorder.setTitleJustification(TitledBorder.CENTER);
 		innerBorder.setTitleColor(Color.black);
 		innerBorder.setTitleFont(new Font("Cabin Bold", 30, 30));
-//		innerBorder = BorderFactory.createTitledBorder(null, title, 
-//				TitledBorder.CENTER, TitledBorder.TOP, 
-//				new Font("Cabin Bold", 30, 30), Color.BLACK);
 	}
-	
+	/**
+	 * Paints the component with a shadow border if specified.
+	 * The shadow border is drawn with the specified shadow color and alpha value.
+	 * The component is also rendered with high quality rendering if specified.
+	 * 
+	 * @param g the graphics context to use for painting
+	 */
 	@Override
 	protected void paintComponent(Graphics g) {
 	       super.paintComponent(g);
@@ -97,35 +121,48 @@ public class PlayerPanel extends JPanel implements Observer {
 	                   height - strokeSize - shadowOffset, // height
 	                   arcs.width, arcs.height);// arc Dimension
 	       }
-
-	       //Draws the rounded opaque panel with borders.
-	       graphics.setColor(getForeground());
-	       graphics.setStroke(new BasicStroke(strokeSize));
-
-	       //Sets strokes to default, is better.
-	       graphics.setStroke(new BasicStroke());
-	   }
-	
+	}
+	/**
+	 * Gets the player whose information is displayed in the panel.
+	 * @return the player whose information is displayed in the panel
+	 */
 	public Player getPlayer() {
         return player;
     }
-
+	/**
+	 * Sets the shadow color of the panel to white to indicate that it is the player's turn.
+	 */
     public void setPlayerTurn() {
 	    shadowColor = Color.WHITE;
     }
-	
+    /**
+     * Sets the shadow color of the panel back to black to indicate that it is not the player's turn.
+     */
 	public void clearTurn() {
 	    shadowColor = Color.BLACK;
     }
-	
+	/**
+	 * Sets the outer border of the panel to an empty border with 8 pixels of padding on each side.
+	 * Used to make space between the frame and panel.
+	 */
 	public void setOuterBorder() {
 		outerBorder = BorderFactory.createEmptyBorder(8, 8, 8, 8);
 	}
-	
+	/**
+	 * Sets the layout manager for the panel to a FlowLayout with the specified horizontal and vertical spacing.
+	 * @param xSpace the horizontal space between cards in the panel
+	 * @param ySpace the vertical space between cards in the panel
+	 */
 	public void setCardLayoutSpec(int xSpace, int ySpace) {
 		myCardLayout = new FlowLayout(FlowLayout.CENTER,xSpace,ySpace);
 	}
-	
+	/**
+	 * Sets the cards displayed in the panel to the specified list of cards.
+	 * Each card is displayed as a button with the card's face image as its icon.
+	 * The buttons have action listeners that allow the player to play the card.
+	 * 
+	 * @param cards the list of cards to display in the panel
+	 */
 	public void setCards(List<Card> cards) {
 	    removeAll();
         cards.stream().forEach((card) -> {
@@ -145,7 +182,6 @@ public class PlayerPanel extends JPanel implements Observer {
                                 "CARTA NON VALIDA", JOptionPane.ERROR_MESSAGE);
     					break;
 					case 1:
-						frame.update(controller.getGame(), cards);
 						break;
 					case 2:
 						JOptionPane.showMessageDialog(frame, 
@@ -157,11 +193,21 @@ public class PlayerPanel extends JPanel implements Observer {
 	                            "RIPRENDI IL GIOCO PER POTER GIOCARE", 
 	                            "GIOCO IN PAUSA", JOptionPane.ERROR_MESSAGE);
 						break;
+					case 4:
+						new SelectColor(controller, card);
+						break;
 					}
                 }
             });
 	    });
-	}	
+	}
+	/**
+	 * Draws the specified card and adds it to the panel as a button with the card's face image as its icon.
+	 * The button has an action listener that allows the player to play the card.
+	 * The card is also added to the player's hand.
+	 * 
+	 * @param card the card to draw and add to the panel
+	 */
 	public void drawCard(Card card) {
 		JButton carta = new JButton();
 		carta.setIcon(card.getFaceCard());
@@ -180,7 +226,6 @@ public class PlayerPanel extends JPanel implements Observer {
                             "CARTA NON VALIDA", JOptionPane.ERROR_MESSAGE);
 					break;
 				case 1:
-					frame.update(controller.getGame(), null);
 					break;
 				case 2:
 					JOptionPane.showMessageDialog(frame, 
@@ -192,11 +237,19 @@ public class PlayerPanel extends JPanel implements Observer {
                             "RIPRENDI IL GIOCO PER POTER GIOCARE", 
                             "GIOCO IN PAUSA", JOptionPane.ERROR_MESSAGE);
 				break;
+				case 4:
+					new SelectColor(controller, card);
+					break;
 				}
     		}
         });
 	}
-	
+	/**
+	 * Sets the cards displayed in the panel to the specified list of cards.
+	 * Each card is displayed as a label with the card's face image as its icon.
+	 * 
+	 * @param cards the list of cards to display in the panel
+	 */
 	public void setEnemyCard(List<Card> cards) {
 		removeAll();
 	    cards.stream().forEach((card) -> {
@@ -205,26 +258,12 @@ public class PlayerPanel extends JPanel implements Observer {
             setCardButtonSettings(carta);
             add(carta);
 	    });
-	    System.out.println(cards);
     }
-	
-	public void updateEnemyCard(List<Card> cards) {
-	    removeAll();
-	    cards.stream().forEach((card) -> {
-	    	JLabel carta = new JLabel();
-            carta.setIcon(card.getFaceCard());
-            setCardButtonSettings(carta);
-            add(carta);
-        });
-	}
-	
-	public void drawEnemyCard(Card card) {
-		JLabel carta = new JLabel();
-        carta.setIcon(card.getFaceCard());
-        setCardButtonSettings(carta);
-        add(carta);
-    }
-	
+	/**
+	 * Sets the specified button's size, cursor, tooltip text, and other visual settings for a card button.
+	 * 
+	 * @param carta the button to set the visual settings for
+	 */
 	public void setCardButtonSettings(JButton carta) {
         carta.setPreferredSize(new Dimension(100, 150));
         Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
@@ -235,15 +274,28 @@ public class PlayerPanel extends JPanel implements Observer {
 		carta.setCursor(handCursor);
 		carta.setFocusPainted(false);
 	}
-	
+	/**
+	 * Sets the specified label's size and border for an enemy card label.
+	 * 
+	 * @param carta the label to set the visual settings for
+	 */
 	public void setCardButtonSettings(JLabel carta) {
 		carta.setBorder(BorderFactory.createEmptyBorder());
 	    carta.setPreferredSize(new Dimension(100, 150));
 	}
-
+	/**
+	 * Updates the panel to display the current state of the game and the player.
+	 * If the player is an enemy, their cards are displayed as labels with the card's face images as icons.
+	 * If the player is the bottom player (human), 
+	 * their cards are displayed as buttons with the card's face images as icons and action listeners that allow the player to play the cards.
+	 * If the player is the current player, the panel's shadow color is set to white. Otherwise, the shadow color is set to black.
+	 * The panel is then updated to reflect the changes.
+	 * 
+	 * @param obs the Observable object
+	 * @param obj the object being passed
+	 */
 	@Override
 	public void update(Observable obs, Object obj) {
-		removeAll();
 		if (player.getGameId() != 0) {
 			this.setEnemyCard(player.getHandCards());
 		} else {
