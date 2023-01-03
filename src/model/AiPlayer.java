@@ -119,7 +119,8 @@ public class AiPlayer extends Player {
                 .filter(card -> card.isWild() || card.isWildFour())
                 .findAny();
         Optional<Card> validCardBySpecial = validCards.stream()
-                .filter(card -> card.getValue().equals(rejected.getValue()) && rejected.isSpecial())
+                .filter(card -> ( card.getColor().equals(rejected.getColor()) || 
+                		card.getValue().equals(rejected.getValue()) )  && card.isSpecial())
                 .findAny();
         Optional<Card> validCardByColor = handNoWild.stream()
                 .filter(card -> card.getColor().equals(rejected.getColor()))

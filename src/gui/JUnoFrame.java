@@ -360,7 +360,7 @@ public class JUnoFrame extends JFrame implements Observer {
 	}
     /**
      * This method sets the icon, border painting, content area filling, 
-     * cursor and focus painting of the uno button.
+     * cursor and focus painting of the UNO button.
      */
 	private void setUnoButton() {
 		unoButton.setIcon(new ImageIcon(getClass().getResource("/icons/unoButton_200px.png"))); // NOI18N
