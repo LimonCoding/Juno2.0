@@ -1,6 +1,6 @@
 # JUNO
 
-Riferimenti:
+## **Riferimenti:**
 
 - Nome: *Simone*
 - Cognome: *Baglieri*
