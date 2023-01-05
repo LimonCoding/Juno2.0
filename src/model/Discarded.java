@@ -5,11 +5,7 @@ import java.util.Stack;
  * Discarded is a Stack subclass that represents a pile of discarded cards in a card game.
  * @author Simone
  */
-public class Discarded extends Stack<Card> {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1417022577116187699L;
+public class Discarded {
 	/**
 	 * discarded is a Stack object representing a pile of discarded cards in a card game.
 	 */
@@ -43,21 +39,19 @@ public class Discarded extends Stack<Card> {
      * @param discard the card to be added to the discard pile
      */
     public void addDiscard(Card discard) {
-        push(discard);
+    	discarded.push(discard);
     }
     /**
      * Returns the last card that was added to the discard pile.
      *
      * @return the last card that was added to the discard pile
-     * @see #size()
-     * @see #get(int)
      * @see Card#isWild()
      */
     public Card getLastDiscard() {
-        int index = (size()-1);
-        if (this.get(index).isWild()) {
-			System.out.println("CARTA WILD APPENA SCARTATAAAAA: "+get(index).toString());
+        int index = (discarded.size()-1);
+        if (this.discarded.get(index).isWild()) {
+			System.out.println("CARTA WILD APPENA SCARTATAAAAA: "+discarded.get(index).toString());
 		}
-        return get(index);
+        return discarded.get(index);
     }
 }

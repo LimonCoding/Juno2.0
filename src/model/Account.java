@@ -8,8 +8,7 @@ import javax.swing.ImageIcon;
  * The class Account represents a generic account
  * @author Simone
  */
-public class Account extends Object implements Serializable {
-	
+public class Account implements Serializable {
 	/**
 	 * 
 	 */

@@ -13,7 +13,7 @@ import javax.swing.Box.Filler;
 import javax.swing.*;
 
 import controller.Controller;
-import model.Game.Flipped;
+import model.Card.Flipped;
 
 /**
  * The main frame for the UNO game. 

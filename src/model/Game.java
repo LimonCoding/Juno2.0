@@ -7,6 +7,7 @@ import javax.swing.Timer;
 
 import model.AiPlayer.Strategy;
 import model.Card.Value;
+import model.Card.Flipped;
 /**
  * The Game class represents a game in the UNO game.
  *
@@ -66,51 +67,6 @@ public class Game extends Observable {
                 if (g.getGameDirection() == gameDirection) return g;
             }
             return CLOCKWISE;
-        }
-    }
-    /**
-     * An enumeration class representing the two possible states of a card being flipped.
-     */
-    public enum Flipped {
-    	/**
-         * Represents a card that is not flipped.
-         */
-        NOT_FLIPPED(true),
-        /**
-         * Represents a card that is flipped.
-         */
-        FLIPPED(false);
-    	/**
-         * Boolean value to identify if card is flipped or not
-         * 
-         * <p>When true indicate that the card is not flipped, 
-         * flipped if false.
-         */
-        private boolean flipped;
-        /**
-         * Constructs a Flipped enumeration value with the specified boolean value.
-         * @param flipped the boolean value of this Flipped enumeration value
-         */
-        Flipped(boolean flipped) {
-            this.flipped = flipped;
-        }
-        /**
-         * Gets the boolean value of this Flipped enumeration value.
-         * @return the boolean value of this Flipped enumeration value
-         */
-        public boolean getFlipped() {
-            return flipped;
-        }
-        /**
-         * Returns the Flipped enumeration value that has the same boolean value as the specified boolean value.
-         * @param flipped the boolean value to match
-         * @return the Flipped enumeration value that has the same boolean value as the specified boolean value
-         */
-        public static Flipped forValue(boolean flipped) {
-            for (Flipped f: values()) {
-                if (f.getFlipped() == flipped) return f;
-            }
-            return NOT_FLIPPED;
         }
     }
     /**

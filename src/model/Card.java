@@ -2,7 +2,6 @@ package model;
 
 import javax.swing.ImageIcon;
 
-import model.Game.Flipped;
 /**
  * The class Card represents a generic Uno card
  * @author Simone
@@ -117,7 +116,97 @@ public class Card {
             }
             return null;
         }
+		/**
+	     * An enumeration class representing the two possible states of a card being flipped.
+	     */
+	    public enum Flipped {
+	    	/**
+	         * Represents a card that is not flipped.
+	         */
+	        NOT_FLIPPED(true),
+	        /**
+	         * Represents a card that is flipped.
+	         */
+	        FLIPPED(false);
+	    	/**
+	         * Boolean value to identify if card is flipped or not
+	         * 
+	         * <p>When true indicate that the card is not flipped, 
+	         * flipped if false.
+	         */
+	        private boolean flipped;
+	        /**
+	         * Constructs a Flipped enumeration value with the specified boolean value.
+	         * @param flipped the boolean value of this Flipped enumeration value
+	         */
+	        Flipped(boolean flipped) {
+	            this.flipped = flipped;
+	        }
+	        /**
+	         * Gets the boolean value of this Flipped enumeration value.
+	         * @return the boolean value of this Flipped enumeration value
+	         */
+	        public boolean getFlipped() {
+	            return flipped;
+	        }
+	        /**
+	         * Returns the Flipped enumeration value that has the same boolean value as the specified boolean value.
+	         * @param flipped the boolean value to match
+	         * @return the Flipped enumeration value that has the same boolean value as the specified boolean value
+	         */
+	        public static Flipped forValue(boolean flipped) {
+	            for (Flipped f: values()) {
+	                if (f.getFlipped() == flipped) return f;
+	            }
+	            return NOT_FLIPPED;
+	        }
+	    }
 	}
+	/**
+     * An enumeration class representing the two possible states of a card being flipped.
+     */
+    public enum Flipped {
+    	/**
+         * Represents a card that is not flipped.
+         */
+        NOT_FLIPPED(true),
+        /**
+         * Represents a card that is flipped.
+         */
+        FLIPPED(false);
+    	/**
+         * Boolean value to identify if card is flipped or not
+         * 
+         * <p>When true indicate that the card is not flipped, 
+         * flipped if false.
+         */
+        private boolean flipped;
+        /**
+         * Constructs a Flipped enumeration value with the specified boolean value.
+         * @param flipped the boolean value of this Flipped enumeration value
+         */
+        Flipped(boolean flipped) {
+            this.flipped = flipped;
+        }
+        /**
+         * Gets the boolean value of this Flipped enumeration value.
+         * @return the boolean value of this Flipped enumeration value
+         */
+        public boolean getFlipped() {
+            return flipped;
+        }
+        /**
+         * Returns the Flipped enumeration value that has the same boolean value as the specified boolean value.
+         * @param flipped the boolean value to match
+         * @return the Flipped enumeration value that has the same boolean value as the specified boolean value
+         */
+        public static Flipped forValue(boolean flipped) {
+            for (Flipped f: values()) {
+                if (f.getFlipped() == flipped) return f;
+            }
+            return NOT_FLIPPED;
+        }
+    }
 	/**
 	 * Color enumeration to identify color card 
 	 */
@@ -204,12 +293,6 @@ public class Card {
 		return value;
 	}
 	/**
-	 * @return a string representation of card
-	 */
-	public String toString() {
-		return color + "_" + value + ".png";
-	}
-	/**
 	 * check if card have wild value
 	 * @return true if card have WILD value
 	 */
@@ -282,4 +365,10 @@ public class Card {
         } else 
             this.faceCard = new ImageIcon(getClass().getResource(subPath+this.toString()));
     }
+    /**
+	 * @return a string representation of card
+	 */
+	public String toString() {
+		return color + "_" + value + ".png";
+	}
 }

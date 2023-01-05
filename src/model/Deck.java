@@ -9,7 +9,7 @@ import javax.swing.ImageIcon;
 
 import model.Card.Color;
 import model.Card.Value;
-import model.Game.Flipped;
+import model.Card.Flipped;
 
 /**
  * Represents a deck of playing cards.
@@ -19,12 +19,7 @@ import model.Game.Flipped;
  * intended to hold and manage a collection of `Card` objects.
  * @author Simone
  */
-public class Deck extends Stack<Card> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 544603031132300649L;
+public class Deck {
 	/**
 	 * A stack of cards representing a deck.
 	 */
@@ -101,7 +96,7 @@ public class Deck extends Stack<Card> {
 	 */
 	public Card getCard(Flipped flipped, Discarded discard) {
 	    if(deck.isEmpty()) {
-            refillDeck(discard);
+            refillDeck(discard.getDiscarded());
             Card card = deck.pop();
             card.setCovered(flipped);
             return card;
@@ -140,6 +135,13 @@ public class Deck extends Stack<Card> {
         }
         return cardsDrawed;
     }
+	/**
+	 * Gets the ImageIcon object representing the face of the deck.
+	 * @return the ImageIcon object representing the face of the deck
+	 */
+    public ImageIcon getDeckFace() {
+        return deckFace;
+    }
     /**
      * Returns a string representation of the Deck object.
      * @return a string representation of the Deck object
@@ -152,12 +154,5 @@ public class Deck extends Stack<Card> {
 	        deckString += ++numCards + " " + card.toString() + "\n";
 	    }
         return "Deck: \n" + deckString + "";
-    }
-	/**
-	 * Gets the ImageIcon object representing the face of the deck.
-	 * @return the ImageIcon object representing the face of the deck
-	 */
-    public ImageIcon getDeckFace() {
-        return deckFace;
     }
 }
