@@ -99,8 +99,8 @@ public class JUnoFrame extends JFrame implements Observer {
         homeCard = new HomeCard();
         homeCard.getLogoButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                logoActionPerformed(evt);
-            }
+            	 logoActionPerformed(evt);
+                }
         });
         getContentPane().add(homeCard.getBackground(), "card1");
         
