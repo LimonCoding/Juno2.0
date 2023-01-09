@@ -137,8 +137,8 @@ public class JUnoFrame extends JFrame implements Observer {
         deckPanel = new DeckPanel(controller, controller.getDiscard().getLastDiscard());
         
         topCardPanel = new PlayerPanel(controller, frame, controller.getGame().getTopPlayer(), -30, 20);
-        leftPlayerPanel = new PlayerPanel(controller, frame, controller.getGame().getLeftPlayer(), -50, 50);
-        rightPlayerPanel = new PlayerPanel(controller, frame, controller.getGame().getRightPlayer(), -50, 50);
+        leftPlayerPanel = new PlayerPanel(controller, frame, controller.getGame().getLeftPlayer(), -50, 5);
+        rightPlayerPanel = new PlayerPanel(controller, frame, controller.getGame().getRightPlayer(), -50, 5);
         bottomCardPanel = new PlayerPanel(controller, frame, controller.getGame().getBottomPlayer(), -30, 20);
         playerList = new ArrayList<>(Arrays.asList(topCardPanel, leftPlayerPanel, rightPlayerPanel, bottomCardPanel));
         

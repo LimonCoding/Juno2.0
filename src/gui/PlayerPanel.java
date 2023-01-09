@@ -214,6 +214,7 @@ public class PlayerPanel extends JPanel implements Observer {
 		setCardButtonSettings(carta);
 		add(carta);
 		controller.getGame().getBottomPlayer().drawCard(card);
+		controller.getGame().nextTurn();
 		System.out.println(controller.getGame().getBottomPlayer().getHandCards().toString());
 		carta.addActionListener(new ActionListener() {
             @Override

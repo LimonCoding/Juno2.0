@@ -95,7 +95,7 @@ public class DeckPanel extends JPanel implements Observer {
      * Sets the flow layout of this panel.
      */
 	public void setDeckLayout() {
-		deckFlowLayout = new FlowLayout(FlowLayout.CENTER, 20, 60);
+		deckFlowLayout = new FlowLayout(FlowLayout.CENTER, 20, 20);
         deckFlowLayout.setAlignOnBaseline(true);
         setLayout(deckFlowLayout);
 	}
