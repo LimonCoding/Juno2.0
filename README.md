@@ -1,7 +1,7 @@
 # JUNO
 
 
-https://github.com/LimonCoding/Juno2.0/assets/50263476/212db689-c97c-4489-811d-34e8fab18142
+https://github.com/LimonCoding/Juno2.0/assets/50263476/96cb356f-c729-40fe-b810-ddfeda53c464
 
 
 ## **Riferimenti:**
