@@ -1,5 +1,9 @@
 # JUNO
 
+
+https://github.com/LimonCoding/Juno2.0/assets/50263476/212db689-c97c-4489-811d-34e8fab18142
+
+
 ## **Riferimenti:**
 
 - Nome: *Simone*
